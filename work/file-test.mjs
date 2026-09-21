@@ -141,7 +141,14 @@ try {
   await delay(150);
   const stageFourChart = await evaluate(client, `({
     rows: document.querySelectorAll("#chartGrid .chart-row").length,
-    hasWord: document.querySelector("#chartGrid")?.textContent.includes("おかあさん")
+    hasWord: document.querySelector("#chartGrid")?.textContent.includes("おかあさん"),
+    hasKatakanaWord: document.querySelector("#chartGrid")?.textContent.includes("コーヒー")
+  })`);
+  await evaluate(client, `document.querySelector('[data-chart-script="katakana"]').click(); true`);
+  await delay(150);
+  const stageFourKatakanaChart = await evaluate(client, `({
+    hasKatakanaWord: document.querySelector("#chartGrid")?.textContent.includes("コーヒー"),
+    hasHiraganaWord: document.querySelector("#chartGrid")?.textContent.includes("おかあさん")
   })`);
   await evaluate(client, `document.querySelector('[data-nav="home"]').click(); true`);
   await delay(150);
@@ -254,7 +261,7 @@ try {
     instruction: document.querySelector("#questionInstruction")?.textContent
   })`);
 const runtimeExceptions = client.getExceptions().map((entry) => ({ text: entry.text, description: entry.exception?.description, stack: entry.stackTrace?.callFrames?.slice(0, 3) }));
-  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, stageThreeChart, stageFourChart, session, answerClick, feedback, dueReviewPage, dueSession, stageFourSession, runtimeExceptions }, null, 2));
+  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, stageThreeChart, stageFourChart, stageFourKatakanaChart, session, answerClick, feedback, dueReviewPage, dueSession, stageFourSession, runtimeExceptions }, null, 2));
 } finally {
   client?.close();
   browser.kill();

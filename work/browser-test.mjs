@@ -159,7 +159,23 @@ try {
     ])`
   );
 
-  console.log(JSON.stringify({ home, session, feedback, afterContinue, serviceWorker }, null, 2));
+  await client.send("Page.enable");
+  await client.send("Network.enable");
+  await client.send("Network.emulateNetworkConditions", {
+    offline: true,
+    latency: 0,
+    downloadThroughput: 0,
+    uploadThroughput: 0
+  });
+  await client.send("Page.reload", { ignoreCache: true });
+  await delay(1400);
+  const offline = await evaluateExpression(client, `({
+    title: document.querySelector("#homeTitle")?.textContent,
+    ready: document.readyState,
+    startVisible: Boolean(document.querySelector("#startSessionButton"))
+  })`);
+
+  console.log(JSON.stringify({ home, session, feedback, afterContinue, serviceWorker, offline }, null, 2));
 } finally {
   client?.close();
   browser.kill();

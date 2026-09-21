@@ -7,6 +7,7 @@ import {
   getRow,
   getScriptName,
   getStage,
+  itemSupportsScript,
   getTotalStudyUnits
 } from "./kana-data.js";
 import {
@@ -309,7 +310,7 @@ function renderRoadmap(mode) {
 
   for (const row of ALL_ROWS) {
     const stage = getStage(row);
-    const unlocked = scripts.every((script) => isStageUnlocked(state.data.progress, script, stage));
+    const unlocked = scripts.some((script) => isStageUnlocked(state.data.progress, script, stage));
     const stats = getRowStats(state.data.progress, row.id, primaryScript);
     const item = document.createElement("article");
     item.className = "roadmap-item";
@@ -603,8 +604,22 @@ function renderChart() {
   }
 
   elements.chartGrid.replaceChildren();
+  const stageRows = ALL_ROWS.filter((candidate) => getStage(candidate) === state.chartStage);
+  const detailSupported = stageRows.some((row) =>
+    row.ids.includes(state.chartDetailId) &&
+    itemSupportsScript(KANA_BY_ID.get(state.chartDetailId), state.chartScript)
+  );
 
-  for (const row of ALL_ROWS.filter((candidate) => getStage(candidate) === state.chartStage)) {
+  if (!detailSupported) {
+    const firstSupportedRow = stageRows.find((row) =>
+      row.ids.some((id) => itemSupportsScript(KANA_BY_ID.get(id), state.chartScript))
+    );
+    state.chartDetailId = firstSupportedRow?.ids.find((id) =>
+      itemSupportsScript(KANA_BY_ID.get(id), state.chartScript)
+    ) || "a";
+  }
+
+  for (const row of stageRows) {
     const rowElement = document.createElement("section");
     rowElement.className = "chart-row";
 
@@ -622,8 +637,11 @@ function renderChart() {
 
     const grid = document.createElement("div");
     grid.className = "kana-grid";
+    const supportedIds = row.ids.filter((id) =>
+      itemSupportsScript(KANA_BY_ID.get(id), state.chartScript)
+    );
 
-    for (const id of row.ids) {
+    for (const id of supportedIds) {
       const item = KANA_BY_ID.get(id);
       const record = getRecord(state.data.progress, id, state.chartScript);
       const button = document.createElement("button");
@@ -778,7 +796,7 @@ function renderProgress() {
   for (const row of ALL_ROWS) {
     const stage = getStage(row);
     const unlocked =
-      isStageUnlocked(state.data.progress, "hiragana", stage) &&
+      isStageUnlocked(state.data.progress, "hiragana", stage) ||
       isStageUnlocked(state.data.progress, "katakana", stage);
     const hiragana = getRowStats(state.data.progress, row.id, "hiragana");
     const katakana = getRowStats(state.data.progress, row.id, "katakana");
