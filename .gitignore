@@ -1,0 +1,11 @@
+# Browser test profiles and generated images
+work/edge-*/
+work/*profile*/
+work/*.png
+
+# One-off migration scripts
+work/patch-*.mjs
+
+# OS files
+.DS_Store
+Thumbs.db

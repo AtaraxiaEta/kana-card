@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c7c79" />
+    <meta name="description" content="一个离线可用、按学习曲线推进的日语假名卡片应用。" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Kana 5" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <title>Kana 5</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" data-nav="home" aria-label="回到学习首页">
+          <span class="brand-mark" aria-hidden="true">あ</span>
+          <span>
+            <strong>Kana 5</strong>
+            <small>每天五个，稳步记住</small>
+          </span>
+        </a>
+        <button class="button button-quiet install-top-button" id="installButton" type="button" hidden>
+          安装
+        </button>
+      </header>
+
+      <main class="main-content">
+        <section class="view" id="homeView" data-view="home">
+          <div class="hero-copy">
+            <p class="eyebrow">今日学习</p>
+            <h1 id="homeTitle">今天，记住 5 个假名</h1>
+            <p id="homeSubtitle">先复习旧卡，再认识新字。一次只需要 3 分钟。</p>
+          </div>
+
+          <section class="stat-strip" aria-label="学习统计">
+            <div class="stat-item">
+              <span class="stat-value" id="streakValue">0</span>
+              <span class="stat-label">连续天数</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="learnedValue">0</span>
+              <span class="stat-label">已接触</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="dueValue">0</span>
+              <span class="stat-label">待复习</span>
+            </div>
+          </section>
+
+          <section class="study-panel" aria-labelledby="planTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">学习模式</p>
+                <h2 id="planTitle">安排这一组</h2>
+              </div>
+              <span class="time-chip">约 3 分钟</span>
+            </div>
+
+            <div class="segmented-control" id="modeControl" role="group" aria-label="选择学习模式">
+              <button class="segment is-active" type="button" data-mode="hiragana" aria-pressed="true">
+                平假名
+              </button>
+              <button class="segment" type="button" data-mode="katakana" aria-pressed="false">
+                片假名
+              </button>
+              <button class="segment" type="button" data-mode="mixed" aria-pressed="false">
+                混合
+              </button>
+            </div>
+
+            <div class="plan-summary">
+              <div>
+                <strong id="planHeadline">从 あ行 开始</strong>
+                <p id="planDetail">5 个新假名，之后会在合适的时间再次出现。</p>
+              </div>
+              <div class="kana-preview" id="kanaPreview" aria-label="接下来要学的假名"></div>
+            </div>
+
+            <button class="button button-primary button-wide" id="startSessionButton" type="button">
+              开始这一组
+            </button>
+          </section>
+
+          <aside class="install-banner" id="iosInstallBanner" hidden>
+            <div>
+              <strong>放到 iPhone 主屏幕</strong>
+              <p>用 Safari 打开后，点“分享”，再选“添加到主屏幕”。</p>
+            </div>
+            <button class="icon-button" id="dismissInstallButton" type="button" aria-label="关闭安装提示">
+              ×
+            </button>
+          </aside>
+
+          <section class="next-section" aria-labelledby="nextTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">学习路线</p>
+                <h2 id="nextTitle">按行解锁</h2>
+              </div>
+              <button class="text-button" type="button" data-nav="chart">查看五十音图</button>
+            </div>
+            <div class="roadmap" id="roadmap"></div>
+          </section>
+        </section>
+
+        <section class="view session-view" id="sessionView" data-view="session" hidden>
+          <div class="session-header">
+            <button class="text-button" id="closeSessionButton" type="button">退出</button>
+            <div class="session-progress" aria-label="本组进度">
+              <span id="sessionProgressBar"></span>
+            </div>
+            <span class="session-count" id="sessionCount">0 / 0</span>
+          </div>
+
+          <div class="question-heading">
+            <p class="eyebrow" id="questionType">看假名，选读音</p>
+            <h1 id="questionInstruction">这个假名读什么？</h1>
+          </div>
+
+          <article class="flashcard" id="flashcard" aria-live="polite">
+            <button class="audio-button" id="audioButton" type="button" aria-label="播放发音">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4z"></path>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+            <div class="prompt-wrap">
+              <span class="prompt-kana" id="promptText" lang="ja"></span>
+            </div>
+            <div class="card-caption" id="cardCaption">先凭记忆作答，再查看答案</div>
+          </article>
+
+          <div class="answer-grid" id="answerGrid" aria-label="答案选项"></div>
+
+          <section class="feedback-panel" id="feedbackPanel" hidden aria-live="assertive">
+            <div class="feedback-copy">
+              <strong id="feedbackTitle"></strong>
+              <p id="feedbackDetail"></p>
+              <p class="memory-note" id="memoryNote" hidden></p>
+            </div>
+            <button class="button button-primary" id="continueButton" type="button">继续</button>
+          </section>
+        </section>
+
+        <section class="view complete-view" id="completeView" data-view="complete" hidden>
+          <div class="completion-mark" aria-hidden="true">✓</div>
+          <p class="eyebrow">本组完成</p>
+          <h1 id="completeTitle">这一组完成了</h1>
+          <p id="completeSubtitle">正确答案会自动进入下一次复习。</p>
+
+          <section class="completion-stats" aria-label="本组结果">
+            <div>
+              <strong id="completeCorrect">0</strong>
+              <span>答对</span>
+            </div>
+            <div>
+              <strong id="completeNew">0</strong>
+              <span>新字</span>
+            </div>
+            <div>
+              <strong id="completeAccuracy">0%</strong>
+              <span>正确率</span>
+            </div>
+          </section>
+
+          <div class="completion-actions">
+            <button class="button button-primary button-wide" id="anotherSessionButton" type="button">
+              再来一组
+            </button>
+            <button class="button button-secondary button-wide" id="finishSessionButton" type="button">
+              回到首页
+            </button>
+          </div>
+        </section>
+
+        <section class="view" id="chartView" data-view="chart" hidden>
+          <div class="page-heading">
+            <p class="eyebrow">查阅</p>
+            <h1>五十音图</h1>
+            <p>颜色表示当前熟悉程度。点击任意假名查看读音和记忆提示。</p>
+          </div>
+
+          <div class="segmented-control compact" id="chartScriptControl" role="group" aria-label="选择假名类型">
+            <button class="segment is-active" type="button" data-chart-script="hiragana" aria-pressed="true">
+              平假名
+            </button>
+            <button class="segment" type="button" data-chart-script="katakana" aria-pressed="false">
+              片假名
+            </button>
+          </div>
+
+          <section class="chart-panel" id="chartGrid" aria-label="假名表"></section>
+
+          <aside class="detail-panel" id="chartDetail" hidden>
+            <div class="detail-character" id="detailCharacter" lang="ja"></div>
+            <div class="detail-copy">
+              <p class="eyebrow" id="detailRow"></p>
+              <h2 id="detailRomaji"></h2>
+              <p id="detailPair"></p>
+              <p class="memory-note" id="detailNote" hidden></p>
+            </div>
+            <button class="audio-button static" id="detailAudioButton" type="button" aria-label="播放发音">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4z"></path>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </aside>
+        </section>
+
+        <section class="view" id="reviewView" data-view="review" hidden>
+          <div class="page-heading">
+            <p class="eyebrow">重点复习</p>
+            <h1>把容易忘的挑出来</h1>
+            <p>这里只复习到期卡片和错题，不会混入新假名。</p>
+          </div>
+
+          <section class="review-summary" aria-label="复习概况">
+            <div class="overview-item">
+              <span>到期复习</span>
+              <strong id="reviewDueValue">0</strong>
+            </div>
+            <div class="overview-item">
+              <span>错题数量</span>
+              <strong id="reviewMistakeValue">0</strong>
+            </div>
+            <div class="overview-item">
+              <span>困难卡</span>
+              <strong id="reviewHardValue">0</strong>
+            </div>
+            <div class="overview-item">
+              <span>最近到期</span>
+              <strong id="reviewNextDue">现在</strong>
+            </div>
+          </section>
+
+          <section class="review-action-grid" aria-label="复习方式">
+            <article class="review-action-card">
+              <p class="eyebrow">按计划</p>
+              <h2>到期复习</h2>
+              <p id="reviewDueDetail">当前没有到期卡片。</p>
+              <button class="button button-primary button-wide" id="startDueReviewButton" type="button">
+                开始复习
+              </button>
+            </article>
+            <article class="review-action-card">
+              <p class="eyebrow">按薄弱点</p>
+              <h2>错题强化</h2>
+              <p id="reviewMistakeDetail">还没有需要强化的假名。</p>
+              <button class="button button-secondary button-wide" id="startMistakeReviewButton" type="button">
+                强化错题
+              </button>
+            </article>
+          </section>
+
+          <section class="review-section" aria-labelledby="hardCardsTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">重点</p>
+                <h2 id="hardCardsTitle">困难卡</h2>
+              </div>
+            </div>
+            <div class="review-card-list" id="reviewHardList"></div>
+          </section>
+
+          <section class="review-section review-schedule-panel">
+            <p class="eyebrow">自动安排</p>
+            <h2>复习节奏</h2>
+            <p id="reviewScheduleText">答对后按 1、3、7、14、30 天逐步拉长；快答会适度延后，慢答会更早再见。</p>
+          </section>
+        </section>
+
+        <section class="view" id="progressView" data-view="progress" hidden>
+          <div class="page-heading">
+            <p class="eyebrow">进度</p>
+            <h1>学习记录</h1>
+            <p>数据保存在当前设备中。定期导出备份，可以避免清理浏览器数据时丢失进度。</p>
+          </div>
+
+          <section class="progress-overview">
+            <div class="overview-item">
+              <span>已接触</span>
+              <strong id="progressLearned">0 / 92</strong>
+            </div>
+            <div class="overview-item">
+              <span>较稳定</span>
+              <strong id="progressMastered">0 / 92</strong>
+            </div>
+            <div class="overview-item">
+              <span>今日完成</span>
+              <strong id="progressToday">0 题</strong>
+            </div>
+            <div class="overview-item">
+              <span>连续学习</span>
+              <strong id="progressStreak">0 天</strong>
+            </div>
+          </section>
+
+          <section class="progress-section" aria-labelledby="rowProgressTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">掌握情况</p>
+                <h2 id="rowProgressTitle">按行查看</h2>
+              </div>
+            </div>
+            <div class="row-progress-list" id="rowProgressList"></div>
+          </section>
+
+          <section class="settings-section" aria-labelledby="backupTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">数据安全</p>
+                <h2 id="backupTitle">备份与恢复</h2>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="button button-secondary" id="exportButton" type="button">导出进度</button>
+              <button class="button button-secondary" id="importButton" type="button">导入进度</button>
+              <input id="importInput" type="file" accept="application/json,.json" hidden />
+            </div>
+            <button class="text-button danger-text" id="resetButton" type="button">清除全部学习记录</button>
+          </section>
+
+          <section class="install-help" id="installHelp">
+            <p class="eyebrow">安装到设备</p>
+            <h2>像 App 一样使用</h2>
+            <p id="installHelpText">
+              iPhone 请使用 Safari，点“分享”，然后选择“添加到主屏幕”。安装后可离线打开。
+            </p>
+          </section>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" id="bottomNav" aria-label="主要导航">
+        <button class="nav-button is-active" type="button" data-nav="home" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <path d="M9 22V12h6v10"></path>
+          </svg>
+          <span>学习</span>
+        </button>
+        <button class="nav-button" type="button" data-nav="review">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v5h5"></path>
+            <path d="M12 8v4l3 2"></path>
+          </svg>
+          <span>复习</span>
+        </button>
+        <button class="nav-button" type="button" data-nav="chart">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect width="7" height="7" x="3" y="3" rx="1"></rect>
+            <rect width="7" height="7" x="14" y="3" rx="1"></rect>
+            <rect width="7" height="7" x="14" y="14" rx="1"></rect>
+            <rect width="7" height="7" x="3" y="14" rx="1"></rect>
+          </svg>
+          <span>五十音</span>
+        </button>
+        <button class="nav-button" type="button" data-nav="progress">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3v18h18"></path>
+            <path d="m19 9-5 5-4-4-3 3"></path>
+          </svg>
+          <span>进度</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="./app.bundle.js"></script>
+  </body>
+</html>
