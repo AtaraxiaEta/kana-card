@@ -1,4 +1,4 @@
-const CACHE_NAME = "kana-5-v9";
+const CACHE_NAME = "kana-5-v10";
 const APP_SHELL = [
   "./",
   "./index.html",

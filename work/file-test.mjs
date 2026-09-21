@@ -163,10 +163,16 @@ try {
   })`);
 
   const answerClick = await evaluate(client, `(() => {
-    const button = document.querySelector("#answerGrid .answer-button");
-    if (!button) return { clicked: false, errors: window.__testErrors || [] };
+    const prompt = document.querySelector("#promptText")?.textContent || "";
+    const item = globalThis.KanaData.KANA_DATA.find(
+      (candidate) => candidate.hiragana === prompt || candidate.katakana === prompt
+    );
+    const expected = item?.romaji;
+    const buttons = [...document.querySelectorAll("#answerGrid .answer-button")];
+    const button = buttons.find((candidate) => candidate.dataset.answer === expected) || buttons[0];
+    if (!button) return { clicked: false, expected, errors: window.__testErrors || [] };
     button.click();
-    return { clicked: true, errors: window.__testErrors || [] };
+    return { clicked: true, expected, errors: window.__testErrors || [] };
   })()`);
   await delay(200);
 
@@ -174,6 +180,13 @@ try {
     visible: !document.querySelector("#feedbackPanel")?.hidden,
     title: document.querySelector("#feedbackTitle")?.textContent,
     saved: Boolean(localStorage.getItem("kana-card-state-v1"))
+  })`);
+
+  await delay(750);
+  const autoAdvance = await evaluate(client, `({
+    feedbackHidden: document.querySelector("#feedbackPanel")?.hidden,
+    nextPrompt: document.querySelector("#promptText")?.textContent,
+    continueHidden: document.querySelector("#continueButton")?.hidden
   })`);
 
   await evaluate(client, `localStorage.setItem("kana-card-state-v1", JSON.stringify({
@@ -261,7 +274,7 @@ try {
     instruction: document.querySelector("#questionInstruction")?.textContent
   })`);
 const runtimeExceptions = client.getExceptions().map((entry) => ({ text: entry.text, description: entry.exception?.description, stack: entry.stackTrace?.callFrames?.slice(0, 3) }));
-  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, stageThreeChart, stageFourChart, stageFourKatakanaChart, session, answerClick, feedback, dueReviewPage, dueSession, stageFourSession, runtimeExceptions }, null, 2));
+  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, stageThreeChart, stageFourChart, stageFourKatakanaChart, session, answerClick, feedback, autoAdvance, dueReviewPage, dueSession, stageFourSession, runtimeExceptions }, null, 2));
 } finally {
   client?.close();
   browser.kill();

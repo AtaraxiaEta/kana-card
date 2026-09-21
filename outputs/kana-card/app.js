@@ -47,7 +47,8 @@ const state = {
   chartDetailId: "a",
   deferredInstallPrompt: null,
   activeView: "home",
-  toastTimer: null
+  toastTimer: null,
+  autoAdvanceTimer: null
 };
 
 const elements = {
@@ -347,6 +348,8 @@ function renderRoadmap(mode) {
 function startSession(options = {}) {
   const sessionOptions = options && options.focus ? { focus: options.focus } : {};
   const now = Date.now();
+  window.clearTimeout(state.autoAdvanceTimer);
+  state.autoAdvanceTimer = null;
   state.session = buildSession(
     state.data.progress,
     state.data.settings.mode,
@@ -387,6 +390,7 @@ function renderCurrentCard() {
   state.answered = false;
   state.cardShownAt = Date.now();
   elements.feedbackPanel.hidden = true;
+  elements.continueButton.hidden = false;
   elements.answerGrid.hidden = false;
 
   const item = KANA_BY_ID.get(card.id);
@@ -504,12 +508,29 @@ function answerQuestion(answer) {
   }
 
   elements.feedbackPanel.hidden = false;
-  elements.continueButton.focus({ preventScroll: true });
+  elements.continueButton.hidden = result.correct;
+
+  window.clearTimeout(state.autoAdvanceTimer);
+  state.autoAdvanceTimer = null;
+  if (result.correct) {
+    const answeredSession = state.session;
+    state.autoAdvanceTimer = window.setTimeout(() => {
+      state.autoAdvanceTimer = null;
+      if (state.session === answeredSession && state.answered) {
+        continueSession();
+      }
+    }, 700);
+  } else {
+    elements.continueButton.focus({ preventScroll: true });
+  }
+
   updateSessionProgress();
 }
 
 function continueSession() {
   if (!state.answered) return;
+  window.clearTimeout(state.autoAdvanceTimer);
+  state.autoAdvanceTimer = null;
   renderCurrentCard();
 }
 
@@ -562,6 +583,8 @@ function showCompletion(empty) {
 
 function finishSession() {
   const focus = state.session?.focus;
+  window.clearTimeout(state.autoAdvanceTimer);
+  state.autoAdvanceTimer = null;
   state.session = null;
   state.currentCard = null;
   setView(focus && focus !== "daily" ? "review" : "home");
