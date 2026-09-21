@@ -9,3 +9,5 @@ work/patch-*.mjs
 # OS files
 .DS_Store
 Thumbs.db
+
+work/recover-*.mjs

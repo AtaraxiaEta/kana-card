@@ -156,7 +156,58 @@ const DAKUTEN_ROWS = [
   { id: "pa", label: "ぱ行", stage: 2, ids: ["pa", "pi", "pu", "pe", "po"] }
 ];
 
-const ALL_ROWS = [...ROWS, ...DAKUTEN_ROWS];
+const YOON_ROWS = [
+  { id: "kya", label: "きゃ行", stage: 3, ids: ["kya", "kyu", "kyo"] },
+  { id: "sha", label: "しゃ行", stage: 3, ids: ["sha", "shu", "sho"] },
+  { id: "cha", label: "ちゃ行", stage: 3, ids: ["cha", "chu", "cho"] },
+  { id: "nya", label: "にゃ行", stage: 3, ids: ["nya", "nyu", "nyo"] },
+  { id: "hya", label: "ひゃ行", stage: 3, ids: ["hya", "hyu", "hyo"] },
+  { id: "mya", label: "みゃ行", stage: 3, ids: ["mya", "myu", "myo"] },
+  { id: "rya", label: "りゃ行", stage: 3, ids: ["rya", "ryu", "ryo"] },
+  { id: "gya", label: "ぎゃ行", stage: 3, ids: ["gya", "gyu", "gyo"] },
+  { id: "ja", label: "じゃ行", stage: 3, ids: ["ja", "ju", "jo"] },
+  { id: "bya", label: "びゃ行", stage: 3, ids: ["bya", "byu", "byo"] },
+  { id: "pya", label: "ぴゃ行", stage: 3, ids: ["pya", "pyu", "pyo"] }
+];
+
+const RULE_ROWS = [
+  {
+    id: "long-vowels",
+    label: "长音",
+    stage: 4,
+    ids: [
+      "long-a-hira",
+      "long-i-hira",
+      "long-u-hira",
+      "long-e-hira",
+      "long-o-hira",
+      "long-a-kata",
+      "long-i-kata",
+      "long-u-kata",
+      "long-e-kata",
+      "long-o-kata"
+    ]
+  },
+  {
+    id: "sokuon",
+    label: "促音",
+    stage: 4,
+    ids: [
+      "sokuon-gakkou-hira",
+      "sokuon-kitte-hira",
+      "sokuon-chotto-hira",
+      "sokuon-zasshi-hira",
+      "sokuon-kippu-hira",
+      "sokuon-kappu-kata",
+      "sokuon-beddo-kata",
+      "sokuon-baggu-kata",
+      "sokuon-petto-kata",
+      "sokuon-shoppu-kata"
+    ]
+  }
+];
+
+const ALL_ROWS = [...ROWS, ...DAKUTEN_ROWS, ...YOON_ROWS, ...RULE_ROWS];
 
 const LEARNING_STAGES = [
   { id: 1, label: "基础假名", description: "46 个清音假名" },
@@ -233,9 +284,370 @@ const DAKUTEN_DATA = [
   { id: "po", romaji: "po", row: "pa", stage: 2, hiragana: "ぽ", katakana: "ポ" }
 ];
 
+const YOON_DATA = [
+  { id: "kya", romaji: "kya", row: "kya", stage: 3, hiragana: "きゃ", katakana: "キャ" },
+  { id: "kyu", romaji: "kyu", row: "kya", stage: 3, hiragana: "きゅ", katakana: "キュ" },
+  { id: "kyo", romaji: "kyo", row: "kya", stage: 3, hiragana: "きょ", katakana: "キョ" },
+  { id: "sha", romaji: "sha", row: "sha", stage: 3, hiragana: "しゃ", katakana: "シャ" },
+  { id: "shu", romaji: "shu", row: "sha", stage: 3, hiragana: "しゅ", katakana: "シュ" },
+  { id: "sho", romaji: "sho", row: "sha", stage: 3, hiragana: "しょ", katakana: "ショ" },
+  { id: "cha", romaji: "cha", row: "cha", stage: 3, hiragana: "ちゃ", katakana: "チャ" },
+  { id: "chu", romaji: "chu", row: "cha", stage: 3, hiragana: "ちゅ", katakana: "チュ" },
+  { id: "cho", romaji: "cho", row: "cha", stage: 3, hiragana: "ちょ", katakana: "チョ" },
+  { id: "nya", romaji: "nya", row: "nya", stage: 3, hiragana: "にゃ", katakana: "ニャ" },
+  { id: "nyu", romaji: "nyu", row: "nya", stage: 3, hiragana: "にゅ", katakana: "ニュ" },
+  { id: "nyo", romaji: "nyo", row: "nya", stage: 3, hiragana: "にょ", katakana: "ニョ" },
+  { id: "hya", romaji: "hya", row: "hya", stage: 3, hiragana: "ひゃ", katakana: "ヒャ" },
+  { id: "hyu", romaji: "hyu", row: "hya", stage: 3, hiragana: "ひゅ", katakana: "ヒュ" },
+  { id: "hyo", romaji: "hyo", row: "hya", stage: 3, hiragana: "ひょ", katakana: "ヒョ" },
+  { id: "mya", romaji: "mya", row: "mya", stage: 3, hiragana: "みゃ", katakana: "ミャ" },
+  { id: "myu", romaji: "myu", row: "mya", stage: 3, hiragana: "みゅ", katakana: "ミュ" },
+  { id: "myo", romaji: "myo", row: "mya", stage: 3, hiragana: "みょ", katakana: "ミョ" },
+  { id: "rya", romaji: "rya", row: "rya", stage: 3, hiragana: "りゃ", katakana: "リャ" },
+  { id: "ryu", romaji: "ryu", row: "rya", stage: 3, hiragana: "りゅ", katakana: "リュ" },
+  { id: "ryo", romaji: "ryo", row: "rya", stage: 3, hiragana: "りょ", katakana: "リョ" },
+  { id: "gya", romaji: "gya", row: "gya", stage: 3, hiragana: "ぎゃ", katakana: "ギャ" },
+  { id: "gyu", romaji: "gyu", row: "gya", stage: 3, hiragana: "ぎゅ", katakana: "ギュ" },
+  { id: "gyo", romaji: "gyo", row: "gya", stage: 3, hiragana: "ぎょ", katakana: "ギョ" },
+  { id: "ja", romaji: "ja", row: "ja", stage: 3, hiragana: "じゃ", katakana: "ジャ" },
+  { id: "ju", romaji: "ju", row: "ja", stage: 3, hiragana: "じゅ", katakana: "ジュ" },
+  { id: "jo", romaji: "jo", row: "ja", stage: 3, hiragana: "じょ", katakana: "ジョ" },
+  { id: "bya", romaji: "bya", row: "bya", stage: 3, hiragana: "びゃ", katakana: "ビャ" },
+  { id: "byu", romaji: "byu", row: "bya", stage: 3, hiragana: "びゅ", katakana: "ビュ" },
+  { id: "byo", romaji: "byo", row: "bya", stage: 3, hiragana: "びょ", katakana: "ビョ" },
+  { id: "pya", romaji: "pya", row: "pya", stage: 3, hiragana: "ぴゃ", katakana: "ピャ" },
+  { id: "pyu", romaji: "pyu", row: "pya", stage: 3, hiragana: "ぴゅ", katakana: "ピュ" },
+  { id: "pyo", romaji: "pyo", row: "pya", stage: 3, hiragana: "ぴょ", katakana: "ピョ" }
+];
+
+const RULE_DATA = [
+  {
+    id: "long-a-hira",
+    romaji: "okaasan",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["hiragana"],
+    hiragana: "おかあさん",
+    katakana: "おかあさん",
+    prompt: "おかあさん",
+    instruction: "这个词应该怎样读？",
+    answer: "okaasan",
+    options: ["okaasan", "okasan", "okassan", "okaasa"],
+    note: "あ 延长了 a 音，读成 okaasan。"
+  },
+  {
+    id: "long-i-hira",
+    romaji: "oniisan",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["hiragana"],
+    hiragana: "おにいさん",
+    katakana: "おにいさん",
+    prompt: "おにいさん",
+    instruction: "这个词应该怎样读？",
+    answer: "oniisan",
+    options: ["oniisan", "onisan", "oniisann", "onisaan"],
+    note: "い 延长了 i 音，读成 oniisan。"
+  },
+  {
+    id: "long-u-hira",
+    romaji: "kuuki",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["hiragana"],
+    hiragana: "くうき",
+    katakana: "くうき",
+    prompt: "くうき",
+    instruction: "这个词应该怎样读？",
+    answer: "kuuki",
+    options: ["kuuki", "kuki", "kukki", "kuukii"],
+    note: "う 延长了 u 音，读成 kuuki。"
+  },
+  {
+    id: "long-e-hira",
+    romaji: "sensei",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["hiragana"],
+    hiragana: "せんせい",
+    katakana: "せんせい",
+    prompt: "せんせい",
+    instruction: "这个词应该怎样读？",
+    answer: "sensei",
+    options: ["sensei", "sensai", "sensee", "sense"],
+    note: "せい 中的 い 延长 e 音，读成 sensei。"
+  },
+  {
+    id: "long-o-hira",
+    romaji: "otousan",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["hiragana"],
+    hiragana: "おとうさん",
+    katakana: "おとうさん",
+    prompt: "おとうさん",
+    instruction: "这个词应该怎样读？",
+    answer: "otousan",
+    options: ["otousan", "otosan", "otossan", "otousann"],
+    note: "おう 中的 う 延长 o 音，读成 otousan。"
+  },
+  {
+    id: "sokuon-gakkou-hira",
+    romaji: "gakkou",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["hiragana"],
+    hiragana: "がっこう",
+    katakana: "がっこう",
+    prompt: "がっこう",
+    instruction: "促音应该怎样读？",
+    answer: "gakkou",
+    options: ["gakkou", "gakou", "gakko", "gakkoo"],
+    note: "小写的 っ 表示停顿一拍，再读出后面的 こ。"
+  },
+  {
+    id: "sokuon-kitte-hira",
+    romaji: "kitte",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["hiragana"],
+    hiragana: "きって",
+    katakana: "きって",
+    prompt: "きって",
+    instruction: "促音应该怎样读？",
+    answer: "kitte",
+    options: ["kitte", "kite", "kitee", "kittei"],
+    note: "小写的 っ 让 t 音停顿一拍，读成 kitte。"
+  },
+  {
+    id: "sokuon-chotto-hira",
+    romaji: "chotto",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["hiragana"],
+    hiragana: "ちょっと",
+    katakana: "ちょっと",
+    prompt: "ちょっと",
+    instruction: "促音应该怎样读？",
+    answer: "chotto",
+    options: ["chotto", "choto", "chottoo", "chott"],
+    note: "小写的 っ 让 t 音停顿一拍，读成 chotto。"
+  },
+  {
+    id: "sokuon-zasshi-hira",
+    romaji: "zasshi",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["hiragana"],
+    hiragana: "ざっし",
+    katakana: "ざっし",
+    prompt: "ざっし",
+    instruction: "促音应该怎样读？",
+    answer: "zasshi",
+    options: ["zasshi", "zashi", "zasshii", "zassh"],
+    note: "小写的 っ 让 s 音停顿一拍，读成 zasshi。"
+  },
+  {
+    id: "sokuon-kippu-hira",
+    romaji: "kippu",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["hiragana"],
+    hiragana: "きっぷ",
+    katakana: "きっぷ",
+    prompt: "きっぷ",
+    instruction: "促音应该怎样读？",
+    answer: "kippu",
+    options: ["kippu", "kipu", "kippuu", "kipp"],
+    note: "小写的 っ 让 p 音停顿一拍，读成 kippu。"
+  },
+  {
+    id: "long-a-kata",
+    romaji: "koohii",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["katakana"],
+    hiragana: "コーヒー",
+    katakana: "コーヒー",
+    prompt: "コーヒー",
+    instruction: "这个词应该怎样读？",
+    answer: "koohii",
+    options: ["koohii", "kohii", "koohi", "kohhii"],
+    note: "片假名长音用 ー 表示，延长前面元音一拍。"
+  },
+  {
+    id: "long-i-kata",
+    romaji: "sukii",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["katakana"],
+    hiragana: "スキー",
+    katakana: "スキー",
+    prompt: "スキー",
+    instruction: "这个词应该怎样读？",
+    answer: "sukii",
+    options: ["sukii", "suki", "sukkii", "sukiii"],
+    note: "ー 延长 i 音，读成 sukii。"
+  },
+  {
+    id: "long-u-kata",
+    romaji: "suupaa",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["katakana"],
+    hiragana: "スーパー",
+    katakana: "スーパー",
+    prompt: "スーパー",
+    instruction: "这个词应该怎样读？",
+    answer: "suupaa",
+    options: ["suupaa", "supaa", "suppaa", "suupa"],
+    note: "两个 ー 分别延长 u 音和 a 音。"
+  },
+  {
+    id: "long-e-kata",
+    romaji: "meeru",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["katakana"],
+    hiragana: "メール",
+    katakana: "メール",
+    prompt: "メール",
+    instruction: "这个词应该怎样读？",
+    answer: "meeru",
+    options: ["meeru", "meru", "merru", "meeruu"],
+    note: "ー 延长 e 音，读成 meeru。"
+  },
+  {
+    id: "long-o-kata",
+    romaji: "kooto",
+    row: "long-vowels",
+    stage: 4,
+    type: "rule",
+    ruleType: "long",
+    scripts: ["katakana"],
+    hiragana: "コート",
+    katakana: "コート",
+    prompt: "コート",
+    instruction: "这个词应该怎样读？",
+    answer: "kooto",
+    options: ["kooto", "koto", "kotto", "kootoo"],
+    note: "ー 延长 o 音，读成 kooto。"
+  },
+  {
+    id: "sokuon-kappu-kata",
+    romaji: "kappu",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["katakana"],
+    hiragana: "カップ",
+    katakana: "カップ",
+    prompt: "カップ",
+    instruction: "促音应该怎样读？",
+    answer: "kappu",
+    options: ["kappu", "kapu", "kappuu", "kapp"],
+    note: "小写的 ッ 让 p 音停顿一拍，读成 kappu。"
+  },
+  {
+    id: "sokuon-beddo-kata",
+    romaji: "beddo",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["katakana"],
+    hiragana: "ベッド",
+    katakana: "ベッド",
+    prompt: "ベッド",
+    instruction: "促音应该怎样读？",
+    answer: "beddo",
+    options: ["beddo", "bedo", "bedd", "beddoo"],
+    note: "小写的 ッ 让 d 音停顿一拍，读成 beddo。"
+  },
+  {
+    id: "sokuon-baggu-kata",
+    romaji: "baggu",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["katakana"],
+    hiragana: "バッグ",
+    katakana: "バッグ",
+    prompt: "バッグ",
+    instruction: "促音应该怎样读？",
+    answer: "baggu",
+    options: ["baggu", "bagu", "bagguu", "bagg"],
+    note: "小写的 ッ 让 g 音停顿一拍，读成 baggu。"
+  },
+  {
+    id: "sokuon-petto-kata",
+    romaji: "petto",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["katakana"],
+    hiragana: "ペット",
+    katakana: "ペット",
+    prompt: "ペット",
+    instruction: "促音应该怎样读？",
+    answer: "petto",
+    options: ["petto", "peto", "pett", "pettoo"],
+    note: "小写的 ッ 让 t 音停顿一拍，读成 petto。"
+  },
+  {
+    id: "sokuon-shoppu-kata",
+    romaji: "shoppu",
+    row: "sokuon",
+    stage: 4,
+    type: "rule",
+    ruleType: "sokuon",
+    scripts: ["katakana"],
+    hiragana: "ショップ",
+    katakana: "ショップ",
+    prompt: "ショップ",
+    instruction: "促音应该怎样读？",
+    answer: "shoppu",
+    options: ["shoppu", "shopu", "shoppuu", "shopp"],
+    note: "小写的 ッ 让 p 音停顿一下，读成 shoppu。"
+  }
+];
+
 const KANA_DATA = [
   ...BASE_KANA_DATA.map((item) => ({ ...item, stage: 1 })),
-  ...DAKUTEN_DATA
+  ...DAKUTEN_DATA,
+  ...YOON_DATA,
+  ...RULE_DATA
 ];
 
 const KANA_BY_ID = new Map(KANA_DATA.map((item) => [item.id, item]));
@@ -252,6 +664,14 @@ function getStage(itemOrRow) {
   return itemOrRow.stage || 1;
 }
 
+function itemSupportsScript(item, script) {
+  return !item.scripts || item.scripts.includes(script);
+}
+
+function getTotalStudyUnits() {
+  return KANA_DATA.reduce((total, item) => total + (item.scripts?.length || 2), 0);
+}
+
 function getScriptName(script) {
   return script === "katakana" ? "片假名" : "平假名";
 }
@@ -266,14 +686,24 @@ function getScriptName(script) {
     getCharacter,
     getRow,
     getScriptName,
-    getStage
+    getStage,
+    itemSupportsScript,
+    getTotalStudyUnits
   };
 })();
 
 (() => {
   "use strict";
 
-  const { ALL_ROWS, KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getStage } = globalThis.KanaData;
+  const {
+    ALL_ROWS,
+    KANA_BY_ID,
+    KANA_DATA,
+    ROWS,
+    getCharacter,
+    getStage,
+    itemSupportsScript
+  } = globalThis.KanaData;
   const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
 const RETRY_DELAY = 10 * 60 * 1000;
@@ -331,11 +761,15 @@ function ensureRecord(progress, id, script) {
 }
 
 function getLearnedCount(progress, script) {
-  return KANA_DATA.filter((item) => getRecord(progress, item.id, script).seen).length;
+  return KANA_DATA.filter(
+    (item) => itemSupportsScript(item, script) && getRecord(progress, item.id, script).seen
+  ).length;
 }
 
 function getMasteredCount(progress, script) {
-  return KANA_DATA.filter((item) => getRecord(progress, item.id, script).stage >= 4).length;
+  return KANA_DATA.filter(
+    (item) => itemSupportsScript(item, script) && getRecord(progress, item.id, script).stage >= 4
+  ).length;
 }
 
 function getStageItems(stage) {
@@ -343,7 +777,7 @@ function getStageItems(stage) {
 }
 
 function getStageProgress(progress, script, stage = 1) {
-  const items = getStageItems(stage);
+  const items = getStageItems(stage).filter((item) => itemSupportsScript(item, script));
   const records = items.map((item) => getRecord(progress, item.id, script));
   const seen = records.filter((record) => record.seen).length;
   const stable = records.filter((record) => record.stage >= 3).length;
@@ -385,7 +819,8 @@ function getDueItems(progress, scripts, now = Date.now()) {
           script,
           dueAt: record.dueAt,
           stage: record.stage,
-          contentStage: getStage(item)
+          contentStage: getStage(item),
+          contentType: item.type || "kana"
         });
       }
     }
@@ -411,6 +846,7 @@ function getMistakeItems(progress, scripts) {
         script,
         stage: record.stage,
         contentStage: getStage(item),
+        contentType: item.type || "kana",
         lapses: record.lapses,
         hard: isHardRecord(record),
         dueAt: record.dueAt,
@@ -452,10 +888,16 @@ function getNewCandidates(progress, scripts) {
 
       const unseen = row.ids
         .map((id) => KANA_BY_ID.get(id))
+        .filter((item) => itemSupportsScript(item, script))
         .filter((item) => !getRecord(progress, item.id, script).seen);
 
       for (const item of unseen) {
-        candidates.push({ id: item.id, script, contentStage: getStage(item) });
+        candidates.push({
+          id: item.id,
+          script,
+          contentStage: getStage(item),
+          contentType: item.type || "kana"
+        });
         added += 1;
         if (added >= SESSION_LIMITS.newCards) {
           break;
@@ -508,15 +950,16 @@ function getRowStats(progress, rowId, script) {
     return { seen: 0, mastered: 0, total: 0, progress: 0 };
   }
 
-  const records = row.ids.map((id) => getRecord(progress, id, script));
+  const ids = row.ids.filter((id) => itemSupportsScript(KANA_BY_ID.get(id), script));
+  const records = ids.map((id) => getRecord(progress, id, script));
   const seen = records.filter((record) => record.seen).length;
   const mastered = records.filter((record) => record.stage >= 4).length;
 
   return {
     seen,
     mastered,
-    total: row.ids.length,
-    progress: row.ids.length ? seen / row.ids.length : 0
+    total: ids.length,
+    progress: ids.length ? seen / ids.length : 0
   };
 }
 
@@ -545,7 +988,7 @@ function buildSession(progress, mode, now = Date.now(), random = Math.random, op
     cards = shuffle(due, random).map((item) => ({
       ...item,
       kind: "due",
-      direction: chooseDirection(item.stage, random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(item.stage, random),
       reinforced: false
     }));
   } else if (focus === "mistakes") {
@@ -553,7 +996,7 @@ function buildSession(progress, mode, now = Date.now(), random = Math.random, op
     cards = shuffle(mistakes, random).map((item) => ({
       ...item,
       kind: "mistake",
-      direction: chooseDirection(Math.max(1, item.stage), random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(Math.max(1, item.stage), random),
       reinforced: false
     }));
   } else {
@@ -565,7 +1008,7 @@ function buildSession(progress, mode, now = Date.now(), random = Math.random, op
     const dueCards = shuffle(due, random).map((item) => ({
       ...item,
       kind: "due",
-      direction: chooseDirection(item.stage, random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(item.stage, random),
       reinforced: false
     }));
 
@@ -611,12 +1054,14 @@ function getSessionProgress(session) {
 function getExpectedAnswer(card) {
   const item = KANA_BY_ID.get(card.id);
   if (!item) return "";
+  if (item.type === "rule") return item.answer;
   return card.direction === "reverse" ? getCharacter(item, card.script) : item.romaji;
 }
 
 function getChoices(card, random = Math.random) {
   const target = KANA_BY_ID.get(card.id);
   if (!target) return [];
+  if (target.type === "rule") return shuffle([...target.options], random);
 
   const maxContentStage = getStage(target);
   const choiceItems = KANA_DATA.filter((item) => getStage(item) <= maxContentStage);
@@ -813,7 +1258,8 @@ function getPlan(progress, mode) {
     getCharacter,
     getRow,
     getScriptName,
-    getStage
+    getStage,
+    getTotalStudyUnits
   } = globalThis.KanaData;
   const {
     SESSION_LIMITS,
@@ -1097,10 +1543,12 @@ function renderKanaPreview(items) {
   }
 
   for (const item of previewItems.slice(0, 5)) {
+    const kanaItem = KANA_BY_ID.get(item.id);
     const tile = document.createElement("span");
     tile.className = "preview-tile";
+    if (kanaItem.type === "rule") tile.classList.add("is-rule");
     tile.lang = "ja";
-    tile.textContent = getCharacter(KANA_BY_ID.get(item.id), item.script);
+    tile.textContent = getCharacter(kanaItem, item.script);
     elements.kanaPreview.append(tile);
   }
 }
@@ -1193,17 +1641,33 @@ function renderCurrentCard() {
   elements.answerGrid.hidden = false;
 
   const item = KANA_BY_ID.get(card.id);
-  const isReverse = card.direction === "reverse";
-  const prompt = isReverse ? item.romaji : getCharacter(item, card.script);
+  const isRule = item.type === "rule";
+  const isReverse = !isRule && card.direction === "reverse";
+  const prompt = isRule ? item.prompt : isReverse ? item.romaji : getCharacter(item, card.script);
 
-  elements.questionType.textContent = isReverse ? "看读音，选假名" : "看假名，选读音";
-  elements.questionInstruction.textContent = isReverse ? "哪个是它的假名？" : "这个假名读什么？";
+  elements.questionType.textContent = isRule
+    ? "发音规则"
+    : isReverse
+      ? "看读音，选假名"
+      : "看假名，选读音";
+  elements.questionInstruction.textContent = isRule
+    ? item.instruction
+    : isReverse
+      ? "哪个是它的假名？"
+      : "这个假名读什么？";
   elements.promptText.textContent = prompt;
   elements.promptText.lang = isReverse ? "en" : "ja";
   elements.promptText.classList.toggle("is-romaji", isReverse);
+  elements.promptText.classList.toggle("is-word", isRule);
   const cardKindLabel =
-    card.kind === "new" ? "新字" : card.kind === "mistake" ? "错题强化" : "到期复习";
-  const contentStageLabel = getStage(item) === 2 ? "浊音阶段" : "基础阶段";
+    card.kind === "new" ? "新学" : card.kind === "mistake" ? "错题强化" : "到期复习";
+  const contentStageLabels = {
+    1: "基础阶段",
+    2: "浊音阶段",
+    3: "拗音阶段",
+    4: "规则练习"
+  };
+  const contentStageLabel = contentStageLabels[getStage(item)] || "基础阶段";
   elements.cardCaption.textContent = isReverse
     ? `${getScriptName(card.script)} · ${contentStageLabel} · 主动回忆`
     : `${getScriptName(card.script)} · ${contentStageLabel} · ${cardKindLabel}`;
@@ -1267,9 +1731,14 @@ function answerQuestion(answer) {
   }
 
   elements.feedbackTitle.textContent = result.correct ? "答对了" : "这次没想起来";
-  const baseFeedback = result.correct
-    ? `${item.hiragana} / ${item.katakana} · ${item.romaji}`
-    : `正确答案是 ${result.expected}。${item.hiragana} / ${item.katakana} · ${item.romaji}`;
+  const baseFeedback =
+    item.type === "rule"
+      ? result.correct
+        ? `${item.prompt} · ${item.answer}`
+        : `正确答案是 ${result.expected}。${item.prompt} · ${item.answer}`
+      : result.correct
+        ? `${item.hiragana} / ${item.katakana} · ${item.romaji}`
+        : `正确答案是 ${result.expected}。${item.hiragana} / ${item.katakana} · ${item.romaji}`;
   const paceFeedback =
     result.performance === "fast"
       ? " 反应很快，下次间隔会适当拉长。"
@@ -1412,8 +1881,14 @@ function renderChart() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "kana-tile";
+      if (item.type === "rule") button.classList.add("is-rule");
       button.dataset.kanaId = id;
-      button.setAttribute("aria-label", `${getCharacter(item, state.chartScript)}，读音 ${item.romaji}`);
+      button.setAttribute(
+        "aria-label",
+        item.type === "rule"
+          ? `${item.prompt}，读音 ${item.answer}`
+          : `${getCharacter(item, state.chartScript)}，读音 ${item.romaji}`
+      );
 
       if (record.seen) button.classList.add("is-seen");
       if (record.stage >= 1) button.classList.add("is-learning");
@@ -1447,13 +1922,19 @@ function renderChart() {
 function renderChartDetail() {
   const item = KANA_BY_ID.get(state.chartDetailId) || KANA_DATA[0];
   const row = getRow(item.row);
+  const isRule = item.type === "rule";
 
   elements.chartDetail.hidden = false;
+  elements.detailCharacter.classList.toggle("is-rule", isRule);
   elements.detailCharacter.textContent = getCharacter(item, state.chartScript);
   elements.detailCharacter.lang = "ja";
   elements.detailRow.textContent = `${getScriptName(state.chartScript)} · ${row.label}`;
-  elements.detailRomaji.textContent = item.romaji;
-  elements.detailPair.textContent = `同音：${item.hiragana} / ${item.katakana}`;
+  elements.detailRomaji.textContent = isRule ? item.answer : item.romaji;
+  elements.detailPair.textContent = isRule
+    ? isRule && item.ruleType === "long"
+      ? "长音规则"
+      : "促音规则"
+    : `同音：${item.hiragana} / ${item.katakana}`;
 
   if (item.note) {
     elements.detailNote.textContent = item.note;
@@ -1538,7 +2019,7 @@ function renderProgress() {
   const learned = allScripts.reduce((sum, script) => sum + getLearnedCount(state.data.progress, script), 0);
   const mastered = allScripts.reduce((sum, script) => sum + getMasteredCount(state.data.progress, script), 0);
 
-  const totalKana = KANA_DATA.length * 2;
+  const totalKana = getTotalStudyUnits();
   elements.progressLearned.textContent = `${learned} / ${totalKana}`;
   elements.progressMastered.textContent = `${mastered} / ${totalKana}`;
   elements.progressToday.textContent = `${state.data.daily.answered} 题`;

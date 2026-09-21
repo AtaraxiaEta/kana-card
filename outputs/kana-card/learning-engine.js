@@ -1,4 +1,12 @@
-import { ALL_ROWS, KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getStage } from "./kana-data.js";
+import {
+  ALL_ROWS,
+  KANA_BY_ID,
+  KANA_DATA,
+  ROWS,
+  getCharacter,
+  getStage,
+  itemSupportsScript
+} from "./kana-data.js";
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -57,11 +65,15 @@ export function ensureRecord(progress, id, script) {
 }
 
 export function getLearnedCount(progress, script) {
-  return KANA_DATA.filter((item) => getRecord(progress, item.id, script).seen).length;
+  return KANA_DATA.filter(
+    (item) => itemSupportsScript(item, script) && getRecord(progress, item.id, script).seen
+  ).length;
 }
 
 export function getMasteredCount(progress, script) {
-  return KANA_DATA.filter((item) => getRecord(progress, item.id, script).stage >= 4).length;
+  return KANA_DATA.filter(
+    (item) => itemSupportsScript(item, script) && getRecord(progress, item.id, script).stage >= 4
+  ).length;
 }
 
 export function getStageItems(stage) {
@@ -69,7 +81,7 @@ export function getStageItems(stage) {
 }
 
 export function getStageProgress(progress, script, stage = 1) {
-  const items = getStageItems(stage);
+  const items = getStageItems(stage).filter((item) => itemSupportsScript(item, script));
   const records = items.map((item) => getRecord(progress, item.id, script));
   const seen = records.filter((record) => record.seen).length;
   const stable = records.filter((record) => record.stage >= 3).length;
@@ -111,7 +123,8 @@ export function getDueItems(progress, scripts, now = Date.now()) {
           script,
           dueAt: record.dueAt,
           stage: record.stage,
-          contentStage: getStage(item)
+          contentStage: getStage(item),
+          contentType: item.type || "kana"
         });
       }
     }
@@ -137,6 +150,7 @@ export function getMistakeItems(progress, scripts) {
         script,
         stage: record.stage,
         contentStage: getStage(item),
+        contentType: item.type || "kana",
         lapses: record.lapses,
         hard: isHardRecord(record),
         dueAt: record.dueAt,
@@ -178,10 +192,16 @@ export function getNewCandidates(progress, scripts) {
 
       const unseen = row.ids
         .map((id) => KANA_BY_ID.get(id))
+        .filter((item) => itemSupportsScript(item, script))
         .filter((item) => !getRecord(progress, item.id, script).seen);
 
       for (const item of unseen) {
-        candidates.push({ id: item.id, script, contentStage: getStage(item) });
+        candidates.push({
+          id: item.id,
+          script,
+          contentStage: getStage(item),
+          contentType: item.type || "kana"
+        });
         added += 1;
         if (added >= SESSION_LIMITS.newCards) {
           break;
@@ -234,15 +254,16 @@ export function getRowStats(progress, rowId, script) {
     return { seen: 0, mastered: 0, total: 0, progress: 0 };
   }
 
-  const records = row.ids.map((id) => getRecord(progress, id, script));
+  const ids = row.ids.filter((id) => itemSupportsScript(KANA_BY_ID.get(id), script));
+  const records = ids.map((id) => getRecord(progress, id, script));
   const seen = records.filter((record) => record.seen).length;
   const mastered = records.filter((record) => record.stage >= 4).length;
 
   return {
     seen,
     mastered,
-    total: row.ids.length,
-    progress: row.ids.length ? seen / row.ids.length : 0
+    total: ids.length,
+    progress: ids.length ? seen / ids.length : 0
   };
 }
 
@@ -271,7 +292,7 @@ export function buildSession(progress, mode, now = Date.now(), random = Math.ran
     cards = shuffle(due, random).map((item) => ({
       ...item,
       kind: "due",
-      direction: chooseDirection(item.stage, random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(item.stage, random),
       reinforced: false
     }));
   } else if (focus === "mistakes") {
@@ -279,7 +300,7 @@ export function buildSession(progress, mode, now = Date.now(), random = Math.ran
     cards = shuffle(mistakes, random).map((item) => ({
       ...item,
       kind: "mistake",
-      direction: chooseDirection(Math.max(1, item.stage), random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(Math.max(1, item.stage), random),
       reinforced: false
     }));
   } else {
@@ -291,7 +312,7 @@ export function buildSession(progress, mode, now = Date.now(), random = Math.ran
     const dueCards = shuffle(due, random).map((item) => ({
       ...item,
       kind: "due",
-      direction: chooseDirection(item.stage, random),
+      direction: item.contentType === "rule" ? "forward" : chooseDirection(item.stage, random),
       reinforced: false
     }));
 
@@ -337,12 +358,14 @@ export function getSessionProgress(session) {
 export function getExpectedAnswer(card) {
   const item = KANA_BY_ID.get(card.id);
   if (!item) return "";
+  if (item.type === "rule") return item.answer;
   return card.direction === "reverse" ? getCharacter(item, card.script) : item.romaji;
 }
 
 export function getChoices(card, random = Math.random) {
   const target = KANA_BY_ID.get(card.id);
   if (!target) return [];
+  if (target.type === "rule") return shuffle([...target.options], random);
 
   const maxContentStage = getStage(target);
   const choiceItems = KANA_DATA.filter((item) => getStage(item) <= maxContentStage);

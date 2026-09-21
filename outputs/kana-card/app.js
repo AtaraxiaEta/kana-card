@@ -6,7 +6,8 @@ import {
   getCharacter,
   getRow,
   getScriptName,
-  getStage
+  getStage,
+  getTotalStudyUnits
 } from "./kana-data.js";
 import {
   SESSION_LIMITS,
@@ -290,10 +291,12 @@ function renderKanaPreview(items) {
   }
 
   for (const item of previewItems.slice(0, 5)) {
+    const kanaItem = KANA_BY_ID.get(item.id);
     const tile = document.createElement("span");
     tile.className = "preview-tile";
+    if (kanaItem.type === "rule") tile.classList.add("is-rule");
     tile.lang = "ja";
-    tile.textContent = getCharacter(KANA_BY_ID.get(item.id), item.script);
+    tile.textContent = getCharacter(kanaItem, item.script);
     elements.kanaPreview.append(tile);
   }
 }
@@ -386,17 +389,33 @@ function renderCurrentCard() {
   elements.answerGrid.hidden = false;
 
   const item = KANA_BY_ID.get(card.id);
-  const isReverse = card.direction === "reverse";
-  const prompt = isReverse ? item.romaji : getCharacter(item, card.script);
+  const isRule = item.type === "rule";
+  const isReverse = !isRule && card.direction === "reverse";
+  const prompt = isRule ? item.prompt : isReverse ? item.romaji : getCharacter(item, card.script);
 
-  elements.questionType.textContent = isReverse ? "看读音，选假名" : "看假名，选读音";
-  elements.questionInstruction.textContent = isReverse ? "哪个是它的假名？" : "这个假名读什么？";
+  elements.questionType.textContent = isRule
+    ? "发音规则"
+    : isReverse
+      ? "看读音，选假名"
+      : "看假名，选读音";
+  elements.questionInstruction.textContent = isRule
+    ? item.instruction
+    : isReverse
+      ? "哪个是它的假名？"
+      : "这个假名读什么？";
   elements.promptText.textContent = prompt;
   elements.promptText.lang = isReverse ? "en" : "ja";
   elements.promptText.classList.toggle("is-romaji", isReverse);
+  elements.promptText.classList.toggle("is-word", isRule);
   const cardKindLabel =
-    card.kind === "new" ? "新字" : card.kind === "mistake" ? "错题强化" : "到期复习";
-  const contentStageLabel = getStage(item) === 2 ? "浊音阶段" : "基础阶段";
+    card.kind === "new" ? "新学" : card.kind === "mistake" ? "错题强化" : "到期复习";
+  const contentStageLabels = {
+    1: "基础阶段",
+    2: "浊音阶段",
+    3: "拗音阶段",
+    4: "规则练习"
+  };
+  const contentStageLabel = contentStageLabels[getStage(item)] || "基础阶段";
   elements.cardCaption.textContent = isReverse
     ? `${getScriptName(card.script)} · ${contentStageLabel} · 主动回忆`
     : `${getScriptName(card.script)} · ${contentStageLabel} · ${cardKindLabel}`;
@@ -460,9 +479,14 @@ function answerQuestion(answer) {
   }
 
   elements.feedbackTitle.textContent = result.correct ? "答对了" : "这次没想起来";
-  const baseFeedback = result.correct
-    ? `${item.hiragana} / ${item.katakana} · ${item.romaji}`
-    : `正确答案是 ${result.expected}。${item.hiragana} / ${item.katakana} · ${item.romaji}`;
+  const baseFeedback =
+    item.type === "rule"
+      ? result.correct
+        ? `${item.prompt} · ${item.answer}`
+        : `正确答案是 ${result.expected}。${item.prompt} · ${item.answer}`
+      : result.correct
+        ? `${item.hiragana} / ${item.katakana} · ${item.romaji}`
+        : `正确答案是 ${result.expected}。${item.hiragana} / ${item.katakana} · ${item.romaji}`;
   const paceFeedback =
     result.performance === "fast"
       ? " 反应很快，下次间隔会适当拉长。"
@@ -605,8 +629,14 @@ function renderChart() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "kana-tile";
+      if (item.type === "rule") button.classList.add("is-rule");
       button.dataset.kanaId = id;
-      button.setAttribute("aria-label", `${getCharacter(item, state.chartScript)}，读音 ${item.romaji}`);
+      button.setAttribute(
+        "aria-label",
+        item.type === "rule"
+          ? `${item.prompt}，读音 ${item.answer}`
+          : `${getCharacter(item, state.chartScript)}，读音 ${item.romaji}`
+      );
 
       if (record.seen) button.classList.add("is-seen");
       if (record.stage >= 1) button.classList.add("is-learning");
@@ -640,13 +670,19 @@ function renderChart() {
 function renderChartDetail() {
   const item = KANA_BY_ID.get(state.chartDetailId) || KANA_DATA[0];
   const row = getRow(item.row);
+  const isRule = item.type === "rule";
 
   elements.chartDetail.hidden = false;
+  elements.detailCharacter.classList.toggle("is-rule", isRule);
   elements.detailCharacter.textContent = getCharacter(item, state.chartScript);
   elements.detailCharacter.lang = "ja";
   elements.detailRow.textContent = `${getScriptName(state.chartScript)} · ${row.label}`;
-  elements.detailRomaji.textContent = item.romaji;
-  elements.detailPair.textContent = `同音：${item.hiragana} / ${item.katakana}`;
+  elements.detailRomaji.textContent = isRule ? item.answer : item.romaji;
+  elements.detailPair.textContent = isRule
+    ? isRule && item.ruleType === "long"
+      ? "长音规则"
+      : "促音规则"
+    : `同音：${item.hiragana} / ${item.katakana}`;
 
   if (item.note) {
     elements.detailNote.textContent = item.note;
@@ -731,7 +767,7 @@ function renderProgress() {
   const learned = allScripts.reduce((sum, script) => sum + getLearnedCount(state.data.progress, script), 0);
   const mastered = allScripts.reduce((sum, script) => sum + getMasteredCount(state.data.progress, script), 0);
 
-  const totalKana = KANA_DATA.length * 2;
+  const totalKana = getTotalStudyUnits();
   elements.progressLearned.textContent = `${learned} / ${totalKana}`;
   elements.progressMastered.textContent = `${mastered} / ${totalKana}`;
   elements.progressToday.textContent = `${state.data.daily.answered} 题`;

@@ -1291,3 +1291,39 @@ body.session-active .main-content {
 .row-progress-item.is-locked span:last-child {
   color: var(--coral);
 }
+
+#chartStageControl {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.prompt-kana.is-word {
+  font-size: clamp(42px, 13vw, 68px);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.preview-tile.is-rule {
+  padding: 2px;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.kana-tile.is-rule .tile-character {
+  font-size: 12px;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.kana-tile.is-rule .tile-romaji {
+  display: none;
+}
+
+.detail-character.is-rule {
+  max-width: 130px;
+  font-size: 28px;
+  line-height: 1.2;
+  word-break: break-all;
+}

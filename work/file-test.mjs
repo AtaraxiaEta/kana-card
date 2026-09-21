@@ -131,6 +131,18 @@ try {
     rows: document.querySelectorAll("#chartGrid .chart-row").length,
     hasGa: document.querySelector("#chartGrid")?.textContent.includes("が")
   })`);
+  await evaluate(client, `document.querySelector('[data-chart-stage="3"]').click(); true`);
+  await delay(150);
+  const stageThreeChart = await evaluate(client, `({
+    rows: document.querySelectorAll("#chartGrid .chart-row").length,
+    hasKya: document.querySelector("#chartGrid")?.textContent.includes("きゃ")
+  })`);
+  await evaluate(client, `document.querySelector('[data-chart-stage="4"]').click(); true`);
+  await delay(150);
+  const stageFourChart = await evaluate(client, `({
+    rows: document.querySelectorAll("#chartGrid .chart-row").length,
+    hasWord: document.querySelector("#chartGrid")?.textContent.includes("おかあさん")
+  })`);
   await evaluate(client, `document.querySelector('[data-nav="home"]').click(); true`);
   await delay(150);
   await evaluate(client, `document.querySelector("#startSessionButton").click(); true`);
@@ -197,8 +209,52 @@ try {
     caption: document.querySelector("#cardCaption")?.textContent
   })`);
 
-  const runtimeExceptions = client.getExceptions().map((entry) => ({ text: entry.text, description: entry.exception?.description, stack: entry.stackTrace?.callFrames?.slice(0, 3) }));
-  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, session, answerClick, feedback, dueReviewPage, dueSession, runtimeExceptions }, null, 2));
+    await evaluate(client, `(() => {
+    const api = globalThis.KanaData;
+    const progress = {};
+    const now = Date.now();
+    const day = 86400000;
+    for (const item of api.KANA_DATA) {
+      const stage = api.getStage(item);
+      if (stage <= 3 && api.itemSupportsScript(item, "hiragana")) {
+        progress["hiragana:" + item.id] = {
+          seen: true,
+          stage: 3,
+          streak: 2,
+          lapses: 0,
+          dueAt: now + day,
+          lastSeen: now,
+          attempts: 2,
+          correct: 2,
+          averageMs: 1000,
+          fastCorrect: 1,
+          slowCorrect: 0,
+          hard: false
+        };
+      }
+    }
+    localStorage.setItem("kana-card-state-v1", JSON.stringify({
+      version: 1,
+      progress,
+      streak: 0,
+      lastStudyDate: "",
+      daily: { date: "2026-09-22", answered: 0, correct: 0, newCards: 0, sessions: 0 },
+      settings: { mode: "hiragana", dismissedInstall: true }
+    }));
+    location.reload();
+    return true;
+  })()`);
+  await delay(900);
+  await evaluate(client, `document.querySelector("#startSessionButton").click(); true`);
+  await delay(250);
+  const stageFourSession = await evaluate(client, `({
+    visible: !document.querySelector("#sessionView")?.hidden,
+    prompt: document.querySelector("#promptText")?.textContent,
+    caption: document.querySelector("#cardCaption")?.textContent,
+    instruction: document.querySelector("#questionInstruction")?.textContent
+  })`);
+const runtimeExceptions = client.getExceptions().map((entry) => ({ text: entry.text, description: entry.exception?.description, stack: entry.stackTrace?.callFrames?.slice(0, 3) }));
+  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, stageThreeChart, stageFourChart, session, answerClick, feedback, dueReviewPage, dueSession, stageFourSession, runtimeExceptions }, null, 2));
 } finally {
   client?.close();
   browser.kill();
