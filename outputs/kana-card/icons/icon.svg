@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kana 5">
-  <rect width="512" height="512" rx="108" fill="#172a2e"/>
-  <circle cx="398" cy="112" r="42" fill="#d95b46"/>
-  <path d="M110 175h154c52 0 92 31 92 78 0 35-20 63-52 75 35 11 57 39 57 76 0 47-39 77-96 77H110" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round"/>
-  <path d="M143 175v306M217 175v306" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round"/>
-  <path d="M119 326h156" fill="none" stroke="#8fd0cc" stroke-width="42" stroke-linecap="round"/>
+  <rect width="512" height="512" fill="#0c7c79"/>
+  <circle cx="404" cy="108" r="36" fill="#f0b44d"/>
+  <text
+    x="256"
+    y="286"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="'Yu Gothic UI', 'Yu Gothic', 'Meiryo', sans-serif"
+    font-size="300"
+    font-weight="700"
+    fill="#ffffff"
+  >あ</text>
 </svg>
