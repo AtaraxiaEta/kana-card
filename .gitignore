@@ -11,3 +11,5 @@ work/patch-*.mjs
 Thumbs.db
 
 work/recover-*.mjs
+
+outputs/*.zip
