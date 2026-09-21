@@ -88,7 +88,7 @@ Service Worker 必须运行在 HTTPS 或 `localhost` 下。
 
 ### GitHub Pages
 
-将 `outputs/kana-card` 作为发布目录，或把该目录内容复制到 Pages 使用的分支与目录中。当前仓库尚未配置自动 Pages 工作流。
+将 `outputs/kana-card` 作为发布目录，或把该目录内容复制到 Pages 使用的分支与目录中。仓库已配置 GitHub Actions，每次推送到 main 会自动部署到 GitHub Pages。
 
 ## 数据与隐私
 
