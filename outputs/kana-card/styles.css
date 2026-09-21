@@ -1097,22 +1097,51 @@ body.session-active .main-content {
     flex: 1;
   }
 
+  .session-header {
+    margin-bottom: 22px;
+  }
+
+  .question-heading {
+    margin-bottom: 12px;
+  }
+
   .flashcard {
-    min-height: 252px;
+    min-height: 220px;
+    margin-bottom: 14px;
+    padding: 30px 18px;
+  }
+
+  .answer-grid {
+    gap: 8px;
   }
 
   .answer-button {
-    min-height: 64px;
+    min-height: 58px;
+    padding: 10px 12px;
     font-size: 17px;
   }
 
   .feedback-panel {
     align-items: stretch;
     flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 14px;
   }
 
   .feedback-panel .button {
     width: 100%;
+  }
+
+  .feedback-copy p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .memory-note {
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .detail-panel {

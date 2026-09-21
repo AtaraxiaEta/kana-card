@@ -509,17 +509,19 @@ function answerQuestion(answer) {
 
   elements.feedbackPanel.hidden = false;
   elements.continueButton.hidden = result.correct;
+  elements.feedbackPanel.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
   window.clearTimeout(state.autoAdvanceTimer);
   state.autoAdvanceTimer = null;
   if (result.correct) {
     const answeredSession = state.session;
+    const autoAdvanceDelay = item.note ? 1200 : 700;
     state.autoAdvanceTimer = window.setTimeout(() => {
       state.autoAdvanceTimer = null;
       if (state.session === answeredSession && state.answered) {
         continueSession();
       }
-    }, 700);
+    }, autoAdvanceDelay);
   } else {
     elements.continueButton.focus({ preventScroll: true });
   }
