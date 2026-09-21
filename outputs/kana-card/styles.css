@@ -1281,3 +1281,13 @@ body.session-active .main-content {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.roadmap-item.is-locked,
+.row-progress-item.is-locked {
+  opacity: 0.52;
+}
+
+.roadmap-item.is-locked .roadmap-state,
+.row-progress-item.is-locked span:last-child {
+  color: var(--coral);
+}

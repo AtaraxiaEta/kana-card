@@ -1,4 +1,13 @@
-import { KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getRow, getScriptName } from "./kana-data.js";
+import {
+  ALL_ROWS,
+  KANA_BY_ID,
+  KANA_DATA,
+  LEARNING_STAGES,
+  getCharacter,
+  getRow,
+  getScriptName,
+  getStage
+} from "./kana-data.js";
 import {
   SESSION_LIMITS,
   applyAnswer,
@@ -10,6 +19,9 @@ import {
   getReviewSummary,
   getLearnedCount,
   getMasteredCount,
+  getStageProgress,
+  getUnlockedStages,
+  isStageUnlocked,
   getPlan,
   getRecord,
   getRowStats,
@@ -29,6 +41,7 @@ const state = {
   cardShownAt: 0,
   answered: false,
   chartScript: "hiragana",
+  chartStage: 1,
   chartDetailId: "a",
   deferredInstallPrompt: null,
   activeView: "home",
@@ -41,6 +54,7 @@ const elements = {
   bottomNavButtons: [...document.querySelectorAll(".nav-button")],
   modeButtons: [...document.querySelectorAll("[data-mode]")],
   chartScriptButtons: [...document.querySelectorAll("[data-chart-script]")],
+  chartStageButtons: [...document.querySelectorAll("[data-chart-stage]")],
   streakValue: document.querySelector("#streakValue"),
   learnedValue: document.querySelector("#learnedValue"),
   dueValue: document.querySelector("#dueValue"),
@@ -259,7 +273,10 @@ function renderKanaPreview(items) {
   const previewItems = items.length
     ? items
     : scriptsForMode(state.data.settings.mode).flatMap((script) =>
-        KANA_DATA.filter((item) => !getRecord(state.data.progress, item.id, script).seen)
+        KANA_DATA.filter(
+          (item) =>
+            getStage(item) === 1 && !getRecord(state.data.progress, item.id, script).seen
+        )
           .slice(0, 2)
           .map((item) => ({ id: item.id, script }))
       );
@@ -287,21 +304,29 @@ function renderRoadmap(mode) {
   const primaryScript = scripts[0];
   const currentRow = getPlan(state.data.progress, mode).next?.row?.id;
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS) {
+    const stage = getStage(row);
+    const unlocked = scripts.every((script) => isStageUnlocked(state.data.progress, script, stage));
     const stats = getRowStats(state.data.progress, row.id, primaryScript);
     const item = document.createElement("article");
     item.className = "roadmap-item";
     if (row.id === currentRow) item.classList.add("is-current");
+    if (!unlocked) item.classList.add("is-locked");
 
     const top = document.createElement("div");
     top.className = "roadmap-top";
 
     const title = document.createElement("strong");
-    title.textContent = row.label;
+    title.textContent = stage > 1 ? `${row.label} · 阶段 ${stage}` : row.label;
 
     const status = document.createElement("span");
     status.className = "roadmap-state";
-    status.textContent = stats.seen === stats.total ? "已接触" : `${stats.seen}/${stats.total}`;
+    if (!unlocked) {
+      const previous = getStageProgress(state.data.progress, primaryScript, stage - 1);
+      status.textContent = `${previous.stable}/${previous.required} 稳定后解锁`;
+    } else {
+      status.textContent = stats.seen === stats.total ? "已接触" : `${stats.seen}/${stats.total}`;
+    }
 
     top.append(title, status);
 
@@ -371,9 +396,10 @@ function renderCurrentCard() {
   elements.promptText.classList.toggle("is-romaji", isReverse);
   const cardKindLabel =
     card.kind === "new" ? "新字" : card.kind === "mistake" ? "错题强化" : "到期复习";
+  const contentStageLabel = getStage(item) === 2 ? "浊音阶段" : "基础阶段";
   elements.cardCaption.textContent = isReverse
-    ? `${getScriptName(card.script)} · 主动回忆`
-    : `${getScriptName(card.script)} · ${cardKindLabel}`;
+    ? `${getScriptName(card.script)} · ${contentStageLabel} · 主动回忆`
+    : `${getScriptName(card.script)} · ${contentStageLabel} · ${cardKindLabel}`;
 
   renderAnswers(card);
   updateSessionProgress();
@@ -546,9 +572,15 @@ function renderChart() {
     button.setAttribute("aria-pressed", String(isActive));
   }
 
+  for (const button of elements.chartStageButtons) {
+    const isActive = Number(button.dataset.chartStage) === state.chartStage;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
   elements.chartGrid.replaceChildren();
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS.filter((candidate) => getStage(candidate) === state.chartStage)) {
     const rowElement = document.createElement("section");
     rowElement.className = "chart-row";
 
@@ -699,14 +731,19 @@ function renderProgress() {
   const learned = allScripts.reduce((sum, script) => sum + getLearnedCount(state.data.progress, script), 0);
   const mastered = allScripts.reduce((sum, script) => sum + getMasteredCount(state.data.progress, script), 0);
 
-  elements.progressLearned.textContent = `${learned} / 92`;
-  elements.progressMastered.textContent = `${mastered} / 92`;
+  const totalKana = KANA_DATA.length * 2;
+  elements.progressLearned.textContent = `${learned} / ${totalKana}`;
+  elements.progressMastered.textContent = `${mastered} / ${totalKana}`;
   elements.progressToday.textContent = `${state.data.daily.answered} 题`;
   elements.progressStreak.textContent = `${state.data.streak || 0} 天`;
 
   elements.rowProgressList.replaceChildren();
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS) {
+    const stage = getStage(row);
+    const unlocked =
+      isStageUnlocked(state.data.progress, "hiragana", stage) &&
+      isStageUnlocked(state.data.progress, "katakana", stage);
     const hiragana = getRowStats(state.data.progress, row.id, "hiragana");
     const katakana = getRowStats(state.data.progress, row.id, "katakana");
     const seen = hiragana.seen + katakana.seen;
@@ -715,9 +752,10 @@ function renderProgress() {
 
     const item = document.createElement("div");
     item.className = "row-progress-item";
+    if (!unlocked) item.classList.add("is-locked");
 
     const label = document.createElement("strong");
-    label.textContent = row.label;
+    label.textContent = stage > 1 ? `${row.label} · 阶段 ${stage}` : row.label;
 
     const track = document.createElement("div");
     track.className = "progress-track";
@@ -839,6 +877,13 @@ function bindEvents() {
   for (const button of elements.chartScriptButtons) {
     button.addEventListener("click", () => {
       state.chartScript = button.dataset.chartScript;
+      renderChart();
+    });
+  }
+
+  for (const button of elements.chartStageButtons) {
+    button.addEventListener("click", () => {
+      state.chartStage = Number(button.dataset.chartStage);
       renderChart();
     });
   }

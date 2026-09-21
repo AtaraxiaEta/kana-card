@@ -11,7 +11,7 @@ export const ROWS = [
   { id: "wa", label: "わ行", ids: ["wa", "wo", "n"] }
 ];
 
-export const KANA_DATA = [
+const BASE_KANA_DATA = [
   { id: "a", romaji: "a", row: "a", hiragana: "あ", katakana: "ア" },
   { id: "i", romaji: "i", row: "a", hiragana: "い", katakana: "イ" },
   { id: "u", romaji: "u", row: "a", hiragana: "う", katakana: "ウ" },
@@ -144,6 +144,96 @@ export const KANA_DATA = [
   }
 ];
 
+export const DAKUTEN_ROWS = [
+  { id: "ga", label: "が行", stage: 2, ids: ["ga", "gi", "gu", "ge", "go"] },
+  { id: "za", label: "ざ行", stage: 2, ids: ["za", "ji", "zu", "ze", "zo"] },
+  { id: "da", label: "だ行", stage: 2, ids: ["da", "dji", "dzu", "de", "do"] },
+  { id: "ba", label: "ば行", stage: 2, ids: ["ba", "bi", "bu", "be", "bo"] },
+  { id: "pa", label: "ぱ行", stage: 2, ids: ["pa", "pi", "pu", "pe", "po"] }
+];
+
+export const ALL_ROWS = [...ROWS, ...DAKUTEN_ROWS];
+
+export const LEARNING_STAGES = [
+  { id: 1, label: "基础假名", description: "46 个清音假名" },
+  { id: 2, label: "浊音与半浊音", description: "が、ざ、だ、ば、ぱ 五行" },
+  { id: 3, label: "拗音", description: "きゃ、しゃ、ちゃ等组合音" },
+  { id: 4, label: "长音与促音", description: "通过短词练习发音规则" }
+];
+
+export const DAKUTEN_DATA = [
+  { id: "ga", romaji: "ga", row: "ga", stage: 2, hiragana: "が", katakana: "ガ" },
+  { id: "gi", romaji: "gi", row: "ga", stage: 2, hiragana: "ぎ", katakana: "ギ" },
+  { id: "gu", romaji: "gu", row: "ga", stage: 2, hiragana: "ぐ", katakana: "グ" },
+  { id: "ge", romaji: "ge", row: "ga", stage: 2, hiragana: "げ", katakana: "ゲ" },
+  { id: "go", romaji: "go", row: "ga", stage: 2, hiragana: "ご", katakana: "ゴ" },
+  { id: "za", romaji: "za", row: "za", stage: 2, hiragana: "ざ", katakana: "ザ" },
+  {
+    id: "ji",
+    romaji: "ji",
+    row: "za",
+    stage: 2,
+    hiragana: "じ",
+    katakana: "ジ",
+    note: "じ / ジ 是常用写法；ぢ / ヂ 只在少数词和连浊中出现。"
+  },
+  {
+    id: "zu",
+    romaji: "zu",
+    row: "za",
+    stage: 2,
+    hiragana: "ず",
+    katakana: "ズ",
+    note: "ず / ズ 是常用写法；づ / ヅ 只在少数词中出现。"
+  },
+  { id: "ze", romaji: "ze", row: "za", stage: 2, hiragana: "ぜ", katakana: "ゼ" },
+  { id: "zo", romaji: "zo", row: "za", stage: 2, hiragana: "ぞ", katakana: "ゾ" },
+  { id: "da", romaji: "da", row: "da", stage: 2, hiragana: "だ", katakana: "ダ" },
+  {
+    id: "dji",
+    romaji: "ji",
+    row: "da",
+    stage: 2,
+    hiragana: "ぢ",
+    katakana: "ヂ",
+    note: "ぢ / ヂ 与 じ / ジ 同音，现代日语中出现频率较低。"
+  },
+  {
+    id: "dzu",
+    romaji: "zu",
+    row: "da",
+    stage: 2,
+    hiragana: "づ",
+    katakana: "ヅ",
+    note: "づ / ヅ 与 ず / ズ 同音，常见于连浊词。"
+  },
+  { id: "de", romaji: "de", row: "da", stage: 2, hiragana: "で", katakana: "デ" },
+  { id: "do", romaji: "do", row: "da", stage: 2, hiragana: "ど", katakana: "ド" },
+  { id: "ba", romaji: "ba", row: "ba", stage: 2, hiragana: "ば", katakana: "バ" },
+  { id: "bi", romaji: "bi", row: "ba", stage: 2, hiragana: "び", katakana: "ビ" },
+  { id: "bu", romaji: "bu", row: "ba", stage: 2, hiragana: "ぶ", katakana: "ブ" },
+  { id: "be", romaji: "be", row: "ba", stage: 2, hiragana: "べ", katakana: "ベ" },
+  { id: "bo", romaji: "bo", row: "ba", stage: 2, hiragana: "ぼ", katakana: "ボ" },
+  {
+    id: "pa",
+    romaji: "pa",
+    row: "pa",
+    stage: 2,
+    hiragana: "ぱ",
+    katakana: "パ",
+    note: "ぱ行是半浊音，右上角使用小圆圈。"
+  },
+  { id: "pi", romaji: "pi", row: "pa", stage: 2, hiragana: "ぴ", katakana: "ピ" },
+  { id: "pu", romaji: "pu", row: "pa", stage: 2, hiragana: "ぷ", katakana: "プ" },
+  { id: "pe", romaji: "pe", row: "pa", stage: 2, hiragana: "ぺ", katakana: "ペ" },
+  { id: "po", romaji: "po", row: "pa", stage: 2, hiragana: "ぽ", katakana: "ポ" }
+];
+
+export const KANA_DATA = [
+  ...BASE_KANA_DATA.map((item) => ({ ...item, stage: 1 })),
+  ...DAKUTEN_DATA
+];
+
 export const KANA_BY_ID = new Map(KANA_DATA.map((item) => [item.id, item]));
 
 export function getCharacter(item, script) {
@@ -151,7 +241,11 @@ export function getCharacter(item, script) {
 }
 
 export function getRow(rowId) {
-  return ROWS.find((row) => row.id === rowId);
+  return ALL_ROWS.find((row) => row.id === rowId);
+}
+
+export function getStage(itemOrRow) {
+  return itemOrRow.stage || 1;
 }
 
 export function getScriptName(script) {

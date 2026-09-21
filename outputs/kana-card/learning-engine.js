@@ -1,4 +1,4 @@
-import { KANA_BY_ID, KANA_DATA, ROWS, getCharacter } from "./kana-data.js";
+import { ALL_ROWS, KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getStage } from "./kana-data.js";
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -64,6 +64,41 @@ export function getMasteredCount(progress, script) {
   return KANA_DATA.filter((item) => getRecord(progress, item.id, script).stage >= 4).length;
 }
 
+export function getStageItems(stage) {
+  return KANA_DATA.filter((item) => getStage(item) === stage);
+}
+
+export function getStageProgress(progress, script, stage = 1) {
+  const items = getStageItems(stage);
+  const records = items.map((item) => getRecord(progress, item.id, script));
+  const seen = records.filter((record) => record.seen).length;
+  const stable = records.filter((record) => record.stage >= 3).length;
+  const required = Math.ceil(items.length * 0.8);
+  let unlocked = stage <= 1;
+
+  if (stage > 1) {
+    const previous = getStageProgress(progress, script, stage - 1);
+    unlocked = previous.unlocked && previous.seen === previous.total && previous.stable >= previous.required;
+  }
+
+  return {
+    stage,
+    total: items.length,
+    seen,
+    stable,
+    required,
+    unlocked
+  };
+}
+
+export function isStageUnlocked(progress, script, stage = 1) {
+  return getStageProgress(progress, script, stage).unlocked;
+}
+
+export function getUnlockedStages(progress, script) {
+  return [1, 2, 3, 4].filter((stage) => isStageUnlocked(progress, script, stage));
+}
+
 export function getDueItems(progress, scripts, now = Date.now()) {
   const items = [];
 
@@ -75,7 +110,8 @@ export function getDueItems(progress, scripts, now = Date.now()) {
           id: item.id,
           script,
           dueAt: record.dueAt,
-          stage: record.stage
+          stage: record.stage,
+          contentStage: getStage(item)
         });
       }
     }
@@ -100,6 +136,7 @@ export function getMistakeItems(progress, scripts) {
         id: item.id,
         script,
         stage: record.stage,
+        contentStage: getStage(item),
         lapses: record.lapses,
         hard: isHardRecord(record),
         dueAt: record.dueAt,
@@ -136,13 +173,15 @@ export function getNewCandidates(progress, scripts) {
   for (const script of scripts) {
     let added = 0;
 
-    for (const row of ROWS) {
+    for (const row of ALL_ROWS) {
+      if (!isStageUnlocked(progress, script, getStage(row))) continue;
+
       const unseen = row.ids
         .map((id) => KANA_BY_ID.get(id))
         .filter((item) => !getRecord(progress, item.id, script).seen);
 
       for (const item of unseen) {
-        candidates.push({ id: item.id, script });
+        candidates.push({ id: item.id, script, contentStage: getStage(item) });
         added += 1;
         if (added >= SESSION_LIMITS.newCards) {
           break;
@@ -178,7 +217,8 @@ export function getNextUnseenItems(progress, scripts, limit = 5) {
 
 export function getNextRow(progress, scripts) {
   for (const script of scripts) {
-    for (const row of ROWS) {
+    for (const row of ALL_ROWS) {
+      if (!isStageUnlocked(progress, script, getStage(row))) continue;
       if (row.ids.some((id) => !getRecord(progress, id, script).seen)) {
         return { row, script };
       }
@@ -189,7 +229,7 @@ export function getNextRow(progress, scripts) {
 }
 
 export function getRowStats(progress, rowId, script) {
-  const row = ROWS.find((candidate) => candidate.id === rowId);
+  const row = ALL_ROWS.find((candidate) => candidate.id === rowId);
   if (!row) {
     return { seen: 0, mastered: 0, total: 0, progress: 0 };
   }
@@ -304,15 +344,17 @@ export function getChoices(card, random = Math.random) {
   const target = KANA_BY_ID.get(card.id);
   if (!target) return [];
 
+  const maxContentStage = getStage(target);
+  const choiceItems = KANA_DATA.filter((item) => getStage(item) <= maxContentStage);
   const allCandidates =
     card.direction === "reverse"
-      ? KANA_DATA.map((item) => getCharacter(item, card.script))
-      : KANA_DATA.map((item) => item.romaji);
+      ? choiceItems.map((item) => getCharacter(item, card.script))
+      : choiceItems.map((item) => item.romaji);
 
   const expected = getExpectedAnswer(card);
-  const sameRowIds = new Set(ROWS.find((row) => row.id === target.row)?.ids || []);
+  const sameRowIds = new Set(ALL_ROWS.find((row) => row.id === target.row)?.ids || []);
   const preferred = allCandidates.filter((value, index) => {
-    const item = KANA_DATA[index];
+    const item = choiceItems[index];
     return value !== expected && sameRowIds.has(item.id);
   });
   const fallback = allCandidates.filter((value) => value !== expected);

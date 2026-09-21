@@ -43,6 +43,7 @@ function createClient(socketUrl) {
   return new Promise((resolveClient, rejectClient) => {
     const socket = new WebSocket(socketUrl);
     const pending = new Map();
+    const exceptions = [];
     let nextId = 1;
 
     socket.addEventListener("open", () => {
@@ -57,12 +58,19 @@ function createClient(socketUrl) {
         },
         close() {
           socket.close();
+        },
+        getExceptions() {
+          return exceptions;
         }
       });
     });
 
     socket.addEventListener("message", (event) => {
       const message = JSON.parse(event.data);
+      if (message.method === "Runtime.exceptionThrown") {
+        exceptions.push(message.params.exceptionDetails);
+        return;
+      }
       if (!message.id || !pending.has(message.id)) return;
       const request = pending.get(message.id);
       pending.delete(message.id);
@@ -80,7 +88,7 @@ async function evaluate(client, expression) {
     awaitPromise: true,
     returnByValue: true
   });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || "Evaluation failed.");
+  if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text || "Evaluation failed.");
   return result.result.value;
 }
 
@@ -90,8 +98,11 @@ try {
   const target = await getPageTarget();
   client = await createClient(target.webSocketDebuggerUrl);
   await client.send("Runtime.enable");
+  await client.send("Page.enable");
+  await client.send("Page.reload", { ignoreCache: true });
   await delay(900);
 
+  await evaluate(client, `window.__testErrors = []; window.addEventListener("error", (event) => window.__testErrors.push(event.error?.stack || event.message)); window.addEventListener("unhandledrejection", (event) => window.__testErrors.push(event.reason?.stack || String(event.reason))); true`);
   const home = await evaluate(client, `({
     url: location.href,
     title: document.querySelector("#homeTitle")?.textContent,
@@ -111,6 +122,15 @@ try {
     due: document.querySelector("#reviewDueValue")?.textContent,
     schedule: document.querySelector("#reviewScheduleText")?.textContent
   })`);
+  await evaluate(client, `document.querySelector('[data-nav="chart"]').click(); true`);
+  await delay(150);
+  await evaluate(client, `document.querySelector('[data-chart-stage="2"]').click(); true`);
+  await delay(150);
+  const stageChart = await evaluate(client, `({
+    visible: !document.querySelector("#chartView")?.hidden,
+    rows: document.querySelectorAll("#chartGrid .chart-row").length,
+    hasGa: document.querySelector("#chartGrid")?.textContent.includes("が")
+  })`);
   await evaluate(client, `document.querySelector('[data-nav="home"]').click(); true`);
   await delay(150);
   await evaluate(client, `document.querySelector("#startSessionButton").click(); true`);
@@ -119,10 +139,16 @@ try {
   const session = await evaluate(client, `({
     visible: !document.querySelector("#sessionView")?.hidden,
     prompt: document.querySelector("#promptText")?.textContent,
-    answers: document.querySelectorAll("#answerGrid .answer-button").length
+    answers: document.querySelectorAll("#answerGrid .answer-button").length,
+    errors: window.__testErrors || []
   })`);
 
-  await evaluate(client, `document.querySelector("#answerGrid .answer-button").click(); true`);
+  const answerClick = await evaluate(client, `(() => {
+    const button = document.querySelector("#answerGrid .answer-button");
+    if (!button) return { clicked: false, errors: window.__testErrors || [] };
+    button.click();
+    return { clicked: true, errors: window.__testErrors || [] };
+  })()`);
   await delay(200);
 
   const feedback = await evaluate(client, `({
@@ -171,7 +197,8 @@ try {
     caption: document.querySelector("#cardCaption")?.textContent
   })`);
 
-  console.log(JSON.stringify({ home, reviewNav, reviewPage, session, feedback, dueReviewPage, dueSession }, null, 2));
+  const runtimeExceptions = client.getExceptions().map((entry) => ({ text: entry.text, description: entry.exception?.description, stack: entry.stackTrace?.callFrames?.slice(0, 3) }));
+  console.log(JSON.stringify({ home, reviewNav, reviewPage, stageChart, session, answerClick, feedback, dueReviewPage, dueSession, runtimeExceptions }, null, 2));
 } finally {
   client?.close();
   browser.kill();

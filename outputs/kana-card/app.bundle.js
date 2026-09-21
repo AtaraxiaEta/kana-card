@@ -15,7 +15,7 @@
   { id: "wa", label: "わ行", ids: ["wa", "wo", "n"] }
 ];
 
-const KANA_DATA = [
+const BASE_KANA_DATA = [
   { id: "a", romaji: "a", row: "a", hiragana: "あ", katakana: "ア" },
   { id: "i", romaji: "i", row: "a", hiragana: "い", katakana: "イ" },
   { id: "u", romaji: "u", row: "a", hiragana: "う", katakana: "ウ" },
@@ -148,6 +148,96 @@ const KANA_DATA = [
   }
 ];
 
+const DAKUTEN_ROWS = [
+  { id: "ga", label: "が行", stage: 2, ids: ["ga", "gi", "gu", "ge", "go"] },
+  { id: "za", label: "ざ行", stage: 2, ids: ["za", "ji", "zu", "ze", "zo"] },
+  { id: "da", label: "だ行", stage: 2, ids: ["da", "dji", "dzu", "de", "do"] },
+  { id: "ba", label: "ば行", stage: 2, ids: ["ba", "bi", "bu", "be", "bo"] },
+  { id: "pa", label: "ぱ行", stage: 2, ids: ["pa", "pi", "pu", "pe", "po"] }
+];
+
+const ALL_ROWS = [...ROWS, ...DAKUTEN_ROWS];
+
+const LEARNING_STAGES = [
+  { id: 1, label: "基础假名", description: "46 个清音假名" },
+  { id: 2, label: "浊音与半浊音", description: "が、ざ、だ、ば、ぱ 五行" },
+  { id: 3, label: "拗音", description: "きゃ、しゃ、ちゃ等组合音" },
+  { id: 4, label: "长音与促音", description: "通过短词练习发音规则" }
+];
+
+const DAKUTEN_DATA = [
+  { id: "ga", romaji: "ga", row: "ga", stage: 2, hiragana: "が", katakana: "ガ" },
+  { id: "gi", romaji: "gi", row: "ga", stage: 2, hiragana: "ぎ", katakana: "ギ" },
+  { id: "gu", romaji: "gu", row: "ga", stage: 2, hiragana: "ぐ", katakana: "グ" },
+  { id: "ge", romaji: "ge", row: "ga", stage: 2, hiragana: "げ", katakana: "ゲ" },
+  { id: "go", romaji: "go", row: "ga", stage: 2, hiragana: "ご", katakana: "ゴ" },
+  { id: "za", romaji: "za", row: "za", stage: 2, hiragana: "ざ", katakana: "ザ" },
+  {
+    id: "ji",
+    romaji: "ji",
+    row: "za",
+    stage: 2,
+    hiragana: "じ",
+    katakana: "ジ",
+    note: "じ / ジ 是常用写法；ぢ / ヂ 只在少数词和连浊中出现。"
+  },
+  {
+    id: "zu",
+    romaji: "zu",
+    row: "za",
+    stage: 2,
+    hiragana: "ず",
+    katakana: "ズ",
+    note: "ず / ズ 是常用写法；づ / ヅ 只在少数词中出现。"
+  },
+  { id: "ze", romaji: "ze", row: "za", stage: 2, hiragana: "ぜ", katakana: "ゼ" },
+  { id: "zo", romaji: "zo", row: "za", stage: 2, hiragana: "ぞ", katakana: "ゾ" },
+  { id: "da", romaji: "da", row: "da", stage: 2, hiragana: "だ", katakana: "ダ" },
+  {
+    id: "dji",
+    romaji: "ji",
+    row: "da",
+    stage: 2,
+    hiragana: "ぢ",
+    katakana: "ヂ",
+    note: "ぢ / ヂ 与 じ / ジ 同音，现代日语中出现频率较低。"
+  },
+  {
+    id: "dzu",
+    romaji: "zu",
+    row: "da",
+    stage: 2,
+    hiragana: "づ",
+    katakana: "ヅ",
+    note: "づ / ヅ 与 ず / ズ 同音，常见于连浊词。"
+  },
+  { id: "de", romaji: "de", row: "da", stage: 2, hiragana: "で", katakana: "デ" },
+  { id: "do", romaji: "do", row: "da", stage: 2, hiragana: "ど", katakana: "ド" },
+  { id: "ba", romaji: "ba", row: "ba", stage: 2, hiragana: "ば", katakana: "バ" },
+  { id: "bi", romaji: "bi", row: "ba", stage: 2, hiragana: "び", katakana: "ビ" },
+  { id: "bu", romaji: "bu", row: "ba", stage: 2, hiragana: "ぶ", katakana: "ブ" },
+  { id: "be", romaji: "be", row: "ba", stage: 2, hiragana: "べ", katakana: "ベ" },
+  { id: "bo", romaji: "bo", row: "ba", stage: 2, hiragana: "ぼ", katakana: "ボ" },
+  {
+    id: "pa",
+    romaji: "pa",
+    row: "pa",
+    stage: 2,
+    hiragana: "ぱ",
+    katakana: "パ",
+    note: "ぱ行是半浊音，右上角使用小圆圈。"
+  },
+  { id: "pi", romaji: "pi", row: "pa", stage: 2, hiragana: "ぴ", katakana: "ピ" },
+  { id: "pu", romaji: "pu", row: "pa", stage: 2, hiragana: "ぷ", katakana: "プ" },
+  { id: "pe", romaji: "pe", row: "pa", stage: 2, hiragana: "ぺ", katakana: "ペ" },
+  { id: "po", romaji: "po", row: "pa", stage: 2, hiragana: "ぽ", katakana: "ポ" }
+];
+
+const KANA_DATA = [
+  ...BASE_KANA_DATA.map((item) => ({ ...item, stage: 1 })),
+  ...DAKUTEN_DATA
+];
+
 const KANA_BY_ID = new Map(KANA_DATA.map((item) => [item.id, item]));
 
 function getCharacter(item, script) {
@@ -155,7 +245,11 @@ function getCharacter(item, script) {
 }
 
 function getRow(rowId) {
-  return ROWS.find((row) => row.id === rowId);
+  return ALL_ROWS.find((row) => row.id === rowId);
+}
+
+function getStage(itemOrRow) {
+  return itemOrRow.stage || 1;
 }
 
 function getScriptName(script) {
@@ -165,18 +259,21 @@ function getScriptName(script) {
 
   globalThis.KanaData = {
     ROWS,
+    ALL_ROWS,
     KANA_DATA,
     KANA_BY_ID,
+    LEARNING_STAGES,
     getCharacter,
     getRow,
-    getScriptName
+    getScriptName,
+    getStage
   };
 })();
 
 (() => {
   "use strict";
 
-  const { KANA_BY_ID, KANA_DATA, ROWS, getCharacter } = globalThis.KanaData;
+  const { ALL_ROWS, KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getStage } = globalThis.KanaData;
   const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
 const RETRY_DELAY = 10 * 60 * 1000;
@@ -241,6 +338,41 @@ function getMasteredCount(progress, script) {
   return KANA_DATA.filter((item) => getRecord(progress, item.id, script).stage >= 4).length;
 }
 
+function getStageItems(stage) {
+  return KANA_DATA.filter((item) => getStage(item) === stage);
+}
+
+function getStageProgress(progress, script, stage = 1) {
+  const items = getStageItems(stage);
+  const records = items.map((item) => getRecord(progress, item.id, script));
+  const seen = records.filter((record) => record.seen).length;
+  const stable = records.filter((record) => record.stage >= 3).length;
+  const required = Math.ceil(items.length * 0.8);
+  let unlocked = stage <= 1;
+
+  if (stage > 1) {
+    const previous = getStageProgress(progress, script, stage - 1);
+    unlocked = previous.unlocked && previous.seen === previous.total && previous.stable >= previous.required;
+  }
+
+  return {
+    stage,
+    total: items.length,
+    seen,
+    stable,
+    required,
+    unlocked
+  };
+}
+
+function isStageUnlocked(progress, script, stage = 1) {
+  return getStageProgress(progress, script, stage).unlocked;
+}
+
+function getUnlockedStages(progress, script) {
+  return [1, 2, 3, 4].filter((stage) => isStageUnlocked(progress, script, stage));
+}
+
 function getDueItems(progress, scripts, now = Date.now()) {
   const items = [];
 
@@ -252,7 +384,8 @@ function getDueItems(progress, scripts, now = Date.now()) {
           id: item.id,
           script,
           dueAt: record.dueAt,
-          stage: record.stage
+          stage: record.stage,
+          contentStage: getStage(item)
         });
       }
     }
@@ -277,6 +410,7 @@ function getMistakeItems(progress, scripts) {
         id: item.id,
         script,
         stage: record.stage,
+        contentStage: getStage(item),
         lapses: record.lapses,
         hard: isHardRecord(record),
         dueAt: record.dueAt,
@@ -313,13 +447,15 @@ function getNewCandidates(progress, scripts) {
   for (const script of scripts) {
     let added = 0;
 
-    for (const row of ROWS) {
+    for (const row of ALL_ROWS) {
+      if (!isStageUnlocked(progress, script, getStage(row))) continue;
+
       const unseen = row.ids
         .map((id) => KANA_BY_ID.get(id))
         .filter((item) => !getRecord(progress, item.id, script).seen);
 
       for (const item of unseen) {
-        candidates.push({ id: item.id, script });
+        candidates.push({ id: item.id, script, contentStage: getStage(item) });
         added += 1;
         if (added >= SESSION_LIMITS.newCards) {
           break;
@@ -355,7 +491,8 @@ function getNextUnseenItems(progress, scripts, limit = 5) {
 
 function getNextRow(progress, scripts) {
   for (const script of scripts) {
-    for (const row of ROWS) {
+    for (const row of ALL_ROWS) {
+      if (!isStageUnlocked(progress, script, getStage(row))) continue;
       if (row.ids.some((id) => !getRecord(progress, id, script).seen)) {
         return { row, script };
       }
@@ -366,7 +503,7 @@ function getNextRow(progress, scripts) {
 }
 
 function getRowStats(progress, rowId, script) {
-  const row = ROWS.find((candidate) => candidate.id === rowId);
+  const row = ALL_ROWS.find((candidate) => candidate.id === rowId);
   if (!row) {
     return { seen: 0, mastered: 0, total: 0, progress: 0 };
   }
@@ -481,15 +618,17 @@ function getChoices(card, random = Math.random) {
   const target = KANA_BY_ID.get(card.id);
   if (!target) return [];
 
+  const maxContentStage = getStage(target);
+  const choiceItems = KANA_DATA.filter((item) => getStage(item) <= maxContentStage);
   const allCandidates =
     card.direction === "reverse"
-      ? KANA_DATA.map((item) => getCharacter(item, card.script))
-      : KANA_DATA.map((item) => item.romaji);
+      ? choiceItems.map((item) => getCharacter(item, card.script))
+      : choiceItems.map((item) => item.romaji);
 
   const expected = getExpectedAnswer(card);
-  const sameRowIds = new Set(ROWS.find((row) => row.id === target.row)?.ids || []);
+  const sameRowIds = new Set(ALL_ROWS.find((row) => row.id === target.row)?.ids || []);
   const preferred = allCandidates.filter((value, index) => {
-    const item = KANA_DATA[index];
+    const item = choiceItems[index];
     return value !== expected && sameRowIds.has(item.id);
   });
   const fallback = allCandidates.filter((value) => value !== expected);
@@ -641,6 +780,9 @@ function getPlan(progress, mode) {
     ensureRecord,
     getLearnedCount,
     getMasteredCount,
+    getStageProgress,
+    isStageUnlocked,
+    getUnlockedStages,
     getDueItems,
     getMistakeItems,
     getReviewSummary,
@@ -662,7 +804,17 @@ function getPlan(progress, mode) {
 (() => {
   "use strict";
 
-  const { KANA_BY_ID, KANA_DATA, ROWS, getCharacter, getRow, getScriptName } = globalThis.KanaData;
+  const {
+    KANA_BY_ID,
+    KANA_DATA,
+    ROWS,
+    ALL_ROWS,
+    LEARNING_STAGES,
+    getCharacter,
+    getRow,
+    getScriptName,
+    getStage
+  } = globalThis.KanaData;
   const {
     SESSION_LIMITS,
     applyAnswer,
@@ -674,6 +826,9 @@ function getPlan(progress, mode) {
  getReviewSummary,
     getLearnedCount,
     getMasteredCount,
+    getStageProgress,
+    isStageUnlocked,
+    getUnlockedStages,
     getPlan,
     getRecord,
     getRowStats,
@@ -693,6 +848,7 @@ const state = {
   cardShownAt: 0,
   answered: false,
   chartScript: "hiragana",
+  chartStage: 1,
   chartDetailId: "a",
   deferredInstallPrompt: null,
   activeView: "home",
@@ -705,6 +861,7 @@ const elements = {
   bottomNavButtons: [...document.querySelectorAll(".nav-button")],
   modeButtons: [...document.querySelectorAll("[data-mode]")],
   chartScriptButtons: [...document.querySelectorAll("[data-chart-script]")],
+  chartStageButtons: [...document.querySelectorAll("[data-chart-stage]")],
   streakValue: document.querySelector("#streakValue"),
   learnedValue: document.querySelector("#learnedValue"),
   dueValue: document.querySelector("#dueValue"),
@@ -923,7 +1080,10 @@ function renderKanaPreview(items) {
   const previewItems = items.length
     ? items
     : scriptsForMode(state.data.settings.mode).flatMap((script) =>
-        KANA_DATA.filter((item) => !getRecord(state.data.progress, item.id, script).seen)
+        KANA_DATA.filter(
+          (item) =>
+            getStage(item) === 1 && !getRecord(state.data.progress, item.id, script).seen
+        )
           .slice(0, 2)
           .map((item) => ({ id: item.id, script }))
       );
@@ -951,21 +1111,29 @@ function renderRoadmap(mode) {
   const primaryScript = scripts[0];
   const currentRow = getPlan(state.data.progress, mode).next?.row?.id;
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS) {
+    const stage = getStage(row);
+    const unlocked = scripts.every((script) => isStageUnlocked(state.data.progress, script, stage));
     const stats = getRowStats(state.data.progress, row.id, primaryScript);
     const item = document.createElement("article");
     item.className = "roadmap-item";
     if (row.id === currentRow) item.classList.add("is-current");
+    if (!unlocked) item.classList.add("is-locked");
 
     const top = document.createElement("div");
     top.className = "roadmap-top";
 
     const title = document.createElement("strong");
-    title.textContent = row.label;
+    title.textContent = stage > 1 ? `${row.label} · 阶段 ${stage}` : row.label;
 
     const status = document.createElement("span");
     status.className = "roadmap-state";
-    status.textContent = stats.seen === stats.total ? "已接触" : `${stats.seen}/${stats.total}`;
+    if (!unlocked) {
+      const previous = getStageProgress(state.data.progress, primaryScript, stage - 1);
+      status.textContent = `${previous.stable}/${previous.required} 稳定后解锁`;
+    } else {
+      status.textContent = stats.seen === stats.total ? "已接触" : `${stats.seen}/${stats.total}`;
+    }
 
     top.append(title, status);
 
@@ -1035,9 +1203,10 @@ function renderCurrentCard() {
   elements.promptText.classList.toggle("is-romaji", isReverse);
   const cardKindLabel =
     card.kind === "new" ? "新字" : card.kind === "mistake" ? "错题强化" : "到期复习";
+  const contentStageLabel = getStage(item) === 2 ? "浊音阶段" : "基础阶段";
   elements.cardCaption.textContent = isReverse
-    ? `${getScriptName(card.script)} · 主动回忆`
-    : `${getScriptName(card.script)} · ${cardKindLabel}`;
+    ? `${getScriptName(card.script)} · ${contentStageLabel} · 主动回忆`
+    : `${getScriptName(card.script)} · ${contentStageLabel} · ${cardKindLabel}`;
 
   renderAnswers(card);
   updateSessionProgress();
@@ -1210,9 +1379,15 @@ function renderChart() {
     button.setAttribute("aria-pressed", String(isActive));
   }
 
+  for (const button of elements.chartStageButtons) {
+    const isActive = Number(button.dataset.chartStage) === state.chartStage;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
   elements.chartGrid.replaceChildren();
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS.filter((candidate) => getStage(candidate) === state.chartStage)) {
     const rowElement = document.createElement("section");
     rowElement.className = "chart-row";
 
@@ -1363,14 +1538,19 @@ function renderProgress() {
   const learned = allScripts.reduce((sum, script) => sum + getLearnedCount(state.data.progress, script), 0);
   const mastered = allScripts.reduce((sum, script) => sum + getMasteredCount(state.data.progress, script), 0);
 
-  elements.progressLearned.textContent = `${learned} / 92`;
-  elements.progressMastered.textContent = `${mastered} / 92`;
+  const totalKana = KANA_DATA.length * 2;
+  elements.progressLearned.textContent = `${learned} / ${totalKana}`;
+  elements.progressMastered.textContent = `${mastered} / ${totalKana}`;
   elements.progressToday.textContent = `${state.data.daily.answered} 题`;
   elements.progressStreak.textContent = `${state.data.streak || 0} 天`;
 
   elements.rowProgressList.replaceChildren();
 
-  for (const row of ROWS) {
+  for (const row of ALL_ROWS) {
+    const stage = getStage(row);
+    const unlocked =
+      isStageUnlocked(state.data.progress, "hiragana", stage) &&
+      isStageUnlocked(state.data.progress, "katakana", stage);
     const hiragana = getRowStats(state.data.progress, row.id, "hiragana");
     const katakana = getRowStats(state.data.progress, row.id, "katakana");
     const seen = hiragana.seen + katakana.seen;
@@ -1379,9 +1559,10 @@ function renderProgress() {
 
     const item = document.createElement("div");
     item.className = "row-progress-item";
+    if (!unlocked) item.classList.add("is-locked");
 
     const label = document.createElement("strong");
-    label.textContent = row.label;
+    label.textContent = stage > 1 ? `${row.label} · 阶段 ${stage}` : row.label;
 
     const track = document.createElement("div");
     track.className = "progress-track";
@@ -1503,6 +1684,13 @@ function bindEvents() {
   for (const button of elements.chartScriptButtons) {
     button.addEventListener("click", () => {
       state.chartScript = button.dataset.chartScript;
+      renderChart();
+    });
+  }
+
+  for (const button of elements.chartStageButtons) {
+    button.addEventListener("click", () => {
+      state.chartStage = Number(button.dataset.chartStage);
       renderChart();
     });
   }
